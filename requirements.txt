@@ -1,0 +1,4 @@
+nltk
+tensorly
+numpy
+scikit-learn
