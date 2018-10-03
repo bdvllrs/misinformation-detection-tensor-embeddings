@@ -26,8 +26,14 @@ graph = embedding_matrix_2_kNN(C, k=num_nearest_neighbours).toarray()
 
 beliefs = solve(graph, labels, homophily)
 
+hits = 0.
+for i in range(len(beliefs)):
+    if beliefs[i] * all_labels[i] >= 0:
+        hits += 1
+
 print(beliefs)
 print(all_labels)
+print(hits)
 
 
 
