@@ -4,6 +4,12 @@ import time
 
 
 def embedding_matrix_2_kNN(X, k):
+    """
+
+    :param X: La matrice embedding noté C dans la publie
+    :param k: nbre de plus proches voisins
+    :return: graph des plus proches voisins
+    """
     KNN_nonsym = kneighbors_graph(X, k, mode='connectivity', include_self=False)
     KNN = KNN_nonsym + np.transpose(KNN_nonsym)
     KNN[KNN == 2] = 1
