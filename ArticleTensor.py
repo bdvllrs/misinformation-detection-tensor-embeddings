@@ -58,17 +58,20 @@ class ArticleTensor:
                 'title': self.get_content(get_fullpath(files_path_real_titles, file))
             })
 
-    def build_word_to_index(self, in_freq_order=True):
+    def build_word_to_index(self, in_freq_order=True, max_words=-1):
         """
         Build the index_to_word and word_to_index list and dict
-        :param in_freq_order: if True, list in in order of appearance frequency
+        :param max_words: number max of words in vocab (only the most common ones) default, all of the vocab is kept.
+        :param in_freq_order: if True, list in in order of appearance frequency.
         """
-        # Add <unk> to vocabulary
-        self.vocabulary['<unk>'] = 0
         if in_freq_order:
             vocab = sorted(list(self.vocabulary.items()), key=lambda x: x[1], reverse=True)
         else:
             vocab = list(self.vocabulary.items())
+        max_words = max_words - 1 if max_words > 0 else -1
+        vocab = vocab[:max_words]
+        # Add <unk> to vocabulary
+        vocab.append(('<unk>', 0))
         self.index_to_words, frequencies = list(zip(*vocab))
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
