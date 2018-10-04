@@ -135,5 +135,6 @@ class ArticleTensor:
         :param rank:
         :return: 3 matrices: (vocab, rank) (vocab, rank) and (num of articles, rank)
         """
+        # TODO: Use sparse tensor
         tensor = tl.tensor(tensor)
         return parafac(tensor, rank=rank)

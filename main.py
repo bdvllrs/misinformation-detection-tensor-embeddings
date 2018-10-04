@@ -41,9 +41,6 @@ for i in range(len(beliefs)):
     if beliefs[i] * all_labels[i] >= 0:
         hits += 1
 
-print(beliefs)
-print(all_labels)
-print(hits)
 
 print("return float belief", beliefs)
 beliefs[beliefs > 0] = 1
@@ -51,3 +48,4 @@ beliefs[beliefs < 0] = -1
 print("return int belief", beliefs)
 print("labels correct", all_labels)
 print("labels a completer", labels)
+print("% Correct", hits/len(all_labels))
