@@ -100,7 +100,7 @@ class ArticleTensor:
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
 
-    def get_glove_matrix(self, article):
+    def get_glove_matrix(self, article,method="mean"):
         """
         Get the Glove_mean of an article
         :param article
@@ -109,11 +109,14 @@ class ArticleTensor:
         N=0
         for k, word in enumerate(article):
             if word in self.vocabulary and len(self.frequency[word])<self.nbre_all_article:
-                N+=1
-                try:
-                    vector=vector+self.glove[word]
-                except Exception:
-                    vector = vector + self.glove['unk']
+                if method=="mean":
+                    N+=1
+                    try:
+                        vector=vector+self.glove[word]
+                    except Exception:
+                        vector = vector + self.glove['unk']
+                if method=="BoW":
+                    pass
         print("Nombre de mots considéré", N)
         return vector/N
 
