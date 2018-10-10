@@ -133,7 +133,7 @@ class ArticleTensor:
         Returns
         :param tensor:
         :param rank:
-        :return: 3 matrices: (vocab, rank) (vocab, rank) and (num of articles, rank)
+        :return: 3 matrix: (vocab, rank) (vocab, rank) and (num of articles, rank)
         """
         # TODO: Use sparse tensor
         tensor = tl.tensor(tensor)

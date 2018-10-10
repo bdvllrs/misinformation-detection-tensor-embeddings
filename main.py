@@ -47,5 +47,5 @@ beliefs[beliefs > 0] = 1
 beliefs[beliefs < 0] = -1
 print("return int belief", beliefs)
 print("labels correct", all_labels)
-print("labels a completer", labels)
+print("labels to complete", labels)
 print("% Correct", hits/len(all_labels))
