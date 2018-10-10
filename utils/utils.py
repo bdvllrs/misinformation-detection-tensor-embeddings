@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import json
 
 
 def load_config():
@@ -7,6 +9,7 @@ def load_config():
         config_string = config_file.read()
 
     return json.loads(config_string)
+
 
 def solve(graph, labels):
     """

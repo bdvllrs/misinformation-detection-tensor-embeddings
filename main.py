@@ -1,8 +1,6 @@
 from ArticleTensor import ArticleTensor
 from utils import solve, embedding_matrix_2_kNN, load_config
 import time
-import json
-import os
 
 config = load_config()
 
@@ -19,6 +17,7 @@ tensor, labels, all_labels = articleTensor.get_tensor(window=config['size_word_c
                                                       use_frequency=config['use_frequency'])
 # print(tensor.todense().dtype)
 fin = time.time()
+
 print("get tensor done", fin - debut)
 _, (_, _, C) = ArticleTensor.get_parafac_decomposition(tensor, rank=config['rank_parafac_decomposition'])
 print(type(C))
