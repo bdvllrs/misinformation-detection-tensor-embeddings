@@ -22,6 +22,7 @@ class ArticleTensor:
         self.path = path
         self.vocabulary = {}
         self.index_to_words = []
+        self.frequency = {}  # dictinnaire : clefs Words et attributs : liste de files dans lesquels ces mots sont
         self.words_to_index = {}
         self.articles = {
             'fake': [],
@@ -39,6 +40,11 @@ class ArticleTensor:
         # Add words in the vocab
         for word in content_words_tokenized:
             self.vocabulary[word] = 1 if word not in self.vocabulary.keys() else self.vocabulary[word] + 1
+            if word not in self.frequency.keys():
+                self.frequency[word] = [filename]
+            else:
+                if filename not in self.frequency[word]:
+                    self.frequency[word].append(filename)
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):
@@ -89,16 +95,17 @@ class ArticleTensor:
         coordinates = []
         data = []
         for k, word in enumerate(article):
-            neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
-                article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
-            word_key = self.get_word_index(word)
-            for neighbooring_word in neighbooring_words:
-                coord = (word_key, self.get_word_index(neighbooring_word), article_index)
-                if coord in coordinates and use_frequency:
-                    data[coordinates.index(coord)] += 1.
-                else:
-                    coordinates.append(coord)
-                    data.append(1.)
+            if word in self.vocabulary and len(self.frequency[word]) < self.nbre_all_article:
+                neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
+                    article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
+                word_key = self.get_word_index(word)
+                for neighbooring_word in neighbooring_words:
+                    coord = (word_key, self.get_word_index(neighbooring_word), article_index)
+                    if coord in coordinates and use_frequency:
+                        data[coordinates.index(coord)] += 1.
+                    else:
+                        coordinates.append(coord)
+                        data.append(1.)
         return coordinates, data
 
     def get_tensor(self, window, num_unknown, use_frequency=True):
