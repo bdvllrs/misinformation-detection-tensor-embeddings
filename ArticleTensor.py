@@ -20,6 +20,7 @@ class ArticleTensor:
         :param path: path to all the articles. Must contain Fake, Fake_title, Real, Real_title
         """
         self.path = path
+        self.nbre_all_article=0
         self.vocabulary = {}
         self.index_to_words = []
         self.frequency = {}  # dictinnaire : clefs Words et attributs : liste de files dans lesquels ces mots sont
@@ -52,6 +53,7 @@ class ArticleTensor:
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):
+        self.nbre_all_article=number_fake + number_real
         files_path_fake = get_fullpath(self.path, articles_directory, 'Fake')
         files_path_fake_titles = get_fullpath(self.path, articles_directory, 'Fake_titles')
         files_path_real = get_fullpath(self.path, articles_directory, 'Real')
