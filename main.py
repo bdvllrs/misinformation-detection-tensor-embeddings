@@ -3,11 +3,11 @@ from kNN import embedding_matrix_2_kNN
 from utils import solve
 import time
 
-num_nearest_neighbours = 50
+num_nearest_neighbours = 5
 rank_parafac_decomposition = 10
-num_fake_articles = 100
-num_real_articles = 100
-num_unknown_labels = 160
+num_fake_articles = 10
+num_real_articles = 10
+num_unknown_labels = 16
 size_word_co_occurrence_window = 5
 use_frequency = False
 vocab_size = -1
