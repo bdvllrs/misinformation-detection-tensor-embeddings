@@ -1,7 +1,6 @@
 import os
 import nltk
 import numpy as np
-# import tensorly as tl
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
 
