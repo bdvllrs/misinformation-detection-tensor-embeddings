@@ -133,7 +133,6 @@ class ArticleTensor:
         coordinates = []
         data = []
         for k, article in enumerate(articles):
-            tensor[:, :, k] = self.get_co_occurrence_matrix(article, window, use_frequency)
             coords, d = self.get_sparse_co_occurrence_matrix(article, window, k, use_frequency)
             coordinates.extend(coords)
             data.extend(d)

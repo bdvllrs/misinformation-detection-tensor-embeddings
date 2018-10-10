@@ -3,11 +3,6 @@ from kNN import embedding_matrix_2_kNN
 from utils import solve
 import time
 
-num_nearest_neighbours = 2
-rank_parafac_decomposition = 3
-num_fake_articles = 10
-num_real_articles = 10
-num_unknown_labels = 10
 num_nearest_neighbours = 50
 rank_parafac_decomposition = 10
 num_fake_articles = 100
