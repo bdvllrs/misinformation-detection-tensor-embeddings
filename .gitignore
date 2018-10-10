@@ -4,3 +4,4 @@ __pycache__/
 tensorly/
 sparse/
 tensorly-sparse/
+stats/
