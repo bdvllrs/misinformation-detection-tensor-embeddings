@@ -1,8 +1,6 @@
 import os
 import nltk
 import numpy as np
-import tensorly as tl
-from tensorly.decomposition import parafac
 
 
 def get_fullpath(*path):
@@ -12,14 +10,33 @@ def get_fullpath(*path):
     path = [os.path.curdir] + list(path)
     return os.path.abspath(os.path.join(*path))
 
+def loadGloveModel(gloveFile):
+    """
+    :param gloveFile: adress of glove file
+    :return:
+    """
+    print("Loading Glove Model")
+    f = open(gloveFile, 'r')
+    model = {}
+    for line in f:
+        splitLine = line.split()
+        word = splitLine[0]
+        embedding = np.array([float(val) for val in splitLine[1:]])
+        model[word] = embedding
+    print("Done.", len(model), " words loaded!")
+    return model
+
 
 class ArticleTensor:
     def __init__(self, path):
         """
         :param path: path to all the articles. Must contain Fake, Fake_title, Real, Real_title
         """
+        self.glove=loadGloveModel('../glove6B/glove.6B.100d.txt')
         self.path = path
+        self.nbre_all_article=0
         self.vocabulary = {}
+        self.frequency={}       #dictinnaire : clefs Words et attributs : liste de files dans lesquels ces mots sont
         self.index_to_words = []
         self.words_to_index = {}
         self.articles = {
@@ -38,9 +55,16 @@ class ArticleTensor:
         # Add words in the vocab
         for word in content_words_tokenized:
             self.vocabulary[word] = 1 if word not in self.vocabulary.keys() else self.vocabulary[word] + 1
+            #si 1 mots a un attribut de la taille du dataset c'est qu'il est dans tous les articles. On le supprime du voc
+            if word not in self.frequency.keys():
+                self.frequency[word] =[filename]
+            else:
+                if filename not in self.frequency[word]:
+                    self.frequency[word].append(filename)
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):
+        self.nbre_all_article = number_fake + number_real
         files_path_fake = get_fullpath(self.path, articles_directory, 'Fake')
         files_path_fake_titles = get_fullpath(self.path, articles_directory, 'Fake_titles')
         files_path_real = get_fullpath(self.path, articles_directory, 'Real')
@@ -76,27 +100,24 @@ class ArticleTensor:
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
 
-    def get_co_occurrence_matrix(self, article, window, use_frequency=True):
+    def get_glove_matrix(self, article):
         """
-        Get the co occurrence matrix of an article
-        :param article:
-        :param window: window to consider the words around
-        :param use_frequency: if True, co occurrence matrix has the count with each other words else only a boolean
+        Get the Glove_mean of an article
+        :param article
         """
-        half_window = window // 2  # half to the right, half to the left
-        co_occurrence_matrix = np.zeros((len(self.index_to_words), len(self.index_to_words)))
+        vector = np.zeros(100)
+        N=0
         for k, word in enumerate(article):
-            neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
-                article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
-            word_key = self.get_word_index(word)
-            for neighbooring_word in neighbooring_words:
-                if use_frequency:
-                    co_occurrence_matrix[word_key][self.get_word_index(neighbooring_word)] += 1
-                else:
-                    co_occurrence_matrix[word_key][self.get_word_index(neighbooring_word)] = 1
-        return co_occurrence_matrix
+            if word in self.vocabulary and len(self.frequency[word])<self.nbre_all_article:
+                N+=1
+                try:
+                    vector=vector+self.glove[word]
+                except Exception:
+                    vector = vector + self.glove['unk']
+        print("Nombre de mots considéré", N)
+        return vector/N
 
-    def get_tensor(self, window, num_unknown, use_frequency=True):
+    def get_tensor(self, num_unknown):
         articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
                                                                                 self.articles['real']]
         labels = []
@@ -113,10 +134,9 @@ class ArticleTensor:
         for k in range(num_unknown):
             labels[k] = 0
         articles, labels, labels_untouched = list(zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
-
-        tensor = np.zeros((len(self.index_to_words), len(self.index_to_words), len(articles)))
+        tensor = np.zeros((100, len(articles)))
         for k, article in enumerate(articles):
-            tensor[:, :, k] = self.get_co_occurrence_matrix(article, window, use_frequency)
+            tensor[:, k] = self.get_glove_matrix(article)
         return tensor, labels, labels_untouched
 
     def get_word_index(self, word):
@@ -127,14 +147,5 @@ class ArticleTensor:
             return self.words_to_index[word]
         return self.words_to_index['<unk>']
 
-    @staticmethod
-    def get_parafac_decomposition(tensor, rank):
-        """
-        Returns
-        :param tensor:
-        :param rank:
-        :return: 3 matrices: (vocab, rank) (vocab, rank) and (num of articles, rank)
-        """
-        # TODO: Use sparse tensor
-        tensor = tl.tensor(tensor)
-        return parafac(tensor, rank=rank)
+
+
