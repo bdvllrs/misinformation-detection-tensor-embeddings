@@ -1,8 +1,9 @@
 import os
 import nltk
 import numpy as np
-import tensorly as tl
-from tensorly.decomposition import parafac
+# import tensorly as tl
+import sparse
+from tensorly.contrib.sparse.decomposition import tucker
 
 
 def get_fullpath(*path):
@@ -76,25 +77,29 @@ class ArticleTensor:
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
 
-    def get_co_occurrence_matrix(self, article, window, use_frequency=True):
+    def get_sparse_co_occurrence_matrix(self, article, window, article_index, use_frequency=True):
         """
-        Get the co occurrence matrix of an article
+        Get the co occurrence matrix as sparse matrix of an article
+        :param article_index: index of the corresponding article
         :param article:
         :param window: window to consider the words around
         :param use_frequency: if True, co occurrence matrix has the count with each other words else only a boolean
         """
         half_window = window // 2  # half to the right, half to the left
-        co_occurrence_matrix = np.zeros((len(self.index_to_words), len(self.index_to_words)))
+        coordinates = []
+        data = []
         for k, word in enumerate(article):
             neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
                 article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
             word_key = self.get_word_index(word)
             for neighbooring_word in neighbooring_words:
-                if use_frequency:
-                    co_occurrence_matrix[word_key][self.get_word_index(neighbooring_word)] += 1
+                coord = (word_key, self.get_word_index(neighbooring_word), article_index)
+                if coord in coordinates and use_frequency:
+                    data[coordinates.index(coord)] += 1.
                 else:
-                    co_occurrence_matrix[word_key][self.get_word_index(neighbooring_word)] = 1
-        return co_occurrence_matrix
+                    coordinates.append(coord)
+                    data.append(1.)
+        return coordinates, data
 
     def get_tensor(self, window, num_unknown, use_frequency=True):
         articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
@@ -112,11 +117,17 @@ class ArticleTensor:
         # Add zeros randomly to some labels
         for k in range(num_unknown):
             labels[k] = 0
-        articles, labels, labels_untouched = list(zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
-
-        tensor = np.zeros((len(self.index_to_words), len(self.index_to_words), len(articles)))
+        articles, labels, labels_untouched = list(
+            zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
+        coordinates = []
+        data = []
         for k, article in enumerate(articles):
-            tensor[:, :, k] = self.get_co_occurrence_matrix(article, window, use_frequency)
+            coords, d = self.get_sparse_co_occurrence_matrix(article, window, k, use_frequency)
+            coordinates.extend(coords)
+            data.extend(d)
+        coordinates = list(zip(*coordinates))
+        tensor = sparse.COO(coordinates, data,
+                            shape=(len(self.index_to_words), len(self.index_to_words), len(articles)))
         return tensor, labels, labels_untouched
 
     def get_word_index(self, word):
@@ -135,6 +146,4 @@ class ArticleTensor:
         :param rank:
         :return: 3 matrices: (vocab, rank) (vocab, rank) and (num of articles, rank)
         """
-        # TODO: Use sparse tensor
-        tensor = tl.tensor(tensor)
-        return parafac(tensor, rank=rank)
+        return tucker(tensor, rank=rank)
