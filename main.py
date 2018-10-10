@@ -23,6 +23,7 @@ tensor, labels, all_labels = articleTensor.get_tensor(window=size_word_co_occurr
                                                       num_unknown=num_unknown_labels,
                                                       use_frequency=use_frequency)
 fin = time.time()
+
 print("get tensor done", fin - debut)
 _, _, C = ArticleTensor.get_parafac_decomposition(tensor, rank=rank_parafac_decomposition)
 fin2 = time.time()
