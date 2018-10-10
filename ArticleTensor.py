@@ -1,6 +1,7 @@
 import os
 import nltk
 import numpy as np
+import torch
 
 
 def get_fullpath(*path):
@@ -35,6 +36,7 @@ class ArticleTensor:
         self.glove=loadGloveModel('../glove6B/glove.6B.100d.txt')
         self.path = path
         self.nbre_all_article=0
+        self.RNN=torch.nn.GRUCell(100,100)
         self.vocabulary = {}
         self.frequency={}       #dictinnaire : clefs Words et attributs : liste de files dans lesquels ces mots sont
         self.index_to_words = []
@@ -64,7 +66,7 @@ class ArticleTensor:
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):
-        self.nbre_all_article = number_fake + number_real
+        self.nbre_all_article = ( number_fake + number_real)
         files_path_fake = get_fullpath(self.path, articles_directory, 'Fake')
         files_path_fake_titles = get_fullpath(self.path, articles_directory, 'Fake_titles')
         files_path_real = get_fullpath(self.path, articles_directory, 'Real')
@@ -100,27 +102,39 @@ class ArticleTensor:
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
 
-    def get_glove_matrix(self, article,method="mean"):
+    def get_glove_matrix(self, article,ratio, method="mean"):
         """
-        Get the Glove_mean of an article
+        Get the Glove of an article
         :param article
         """
-        vector = np.zeros(100)
         N=0
+        vector = np.zeros(100)
+        vector_rnn = np.zeros((len(article),1,100))
         for k, word in enumerate(article):
-            if word in self.vocabulary and len(self.frequency[word])<self.nbre_all_article:
+            if word in self.vocabulary and len(self.frequency[word])<(ratio*self.nbre_all_article):
                 if method=="mean":
-                    N+=1
                     try:
+                        N+=1
                         vector=vector+self.glove[word]
                     except Exception:
                         vector = vector + self.glove['unk']
-                if method=="BoW":
-                    pass
-        print("Nombre de mots considéré", N)
-        return vector/N
+                if method=="RNN":
+                    try:
+                        N+=1
+                        vector_rnn[k,:,:]=self.glove[word]
+                    except Exception:
+                        vector_rnn[k, :, :] = self.glove['unk']
+        #print("Nombre de mots considéré en pourcentage", float(N) / float(len(article)))
+        if method=="RNN":
+            hx = torch.zeros(1, 100)
+            for i in range(len(article)):
+                hx = self.RNN(torch.from_numpy(vector_rnn[i]).float(), hx)
+            vector=hx[0].detach().numpy()
+            return vector
+        else:
+            return vector/N
 
-    def get_tensor(self, num_unknown):
+    def get_tensor(self, method_embedding_glove,ratio, num_unknown):
         articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
                                                                                 self.articles['real']]
         labels = []
@@ -139,7 +153,7 @@ class ArticleTensor:
         articles, labels, labels_untouched = list(zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         tensor = np.zeros((100, len(articles)))
         for k, article in enumerate(articles):
-            tensor[:, k] = self.get_glove_matrix(article)
+            tensor[:, k] = self.get_glove_matrix(article,ratio, method=method_embedding_glove)
         return tensor, labels, labels_untouched
 
     def get_word_index(self, word):
