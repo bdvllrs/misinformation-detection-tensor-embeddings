@@ -9,10 +9,10 @@ $ pip install .
 
 Then use this version of tensorly:
 ```bash
-git clone https://github.com/jcrist/tensorly/tree/sparse-take-2 tensorly-sparse
+$ git clone https://github.com/jcrist/tensorly.git tensorly-sparse & cd tensorly-sparse
+$ git checkout sparse-take-2
 ```
-
-Place the `tensorly-sparse/tensorly` created folder in the project structure.
+Then place the `tensorly-sparse/tensorly` folder our project structure.
 
 Python implementation of 
 _Guacho, G. B., Abdali, S., Shah, N., & Papalexakis, 
