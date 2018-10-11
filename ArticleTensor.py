@@ -1,7 +1,6 @@
 import os
 import nltk
 import numpy as np
-# import tensorly as tl
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
 
@@ -35,17 +34,21 @@ class ArticleTensor:
         Get the content of a given file
         :param filename: path to file to open
         """
+        ps = nltk.PorterStemmer()
         with open(filename, 'r', encoding="utf-8", errors='ignore') as document:
             content = document.read().replace('\n', '').replace('\r', '')
         content_words_tokenized = nltk.word_tokenize(content.lower())
         # Add words in the vocab
-        for word in content_words_tokenized:
-            self.vocabulary[word] = 1 if word not in self.vocabulary.keys() else self.vocabulary[word] + 1
-            if word not in self.frequency.keys():
-                self.frequency[word] = [filename]
+
+        for k, word in enumerate(content_words_tokenized):
+            stemmed_word = ps.stem(word)
+            self.vocabulary[stemmed_word] = 1 if stemmed_word not in self.vocabulary.keys() else self.vocabulary[stemmed_word] + 1
+            content_words_tokenized[k] = stemmed_word
+            if stemmed_word not in self.frequency.keys():
+                self.frequency[stemmed_word] = [filename]
             else:
-                if filename not in self.frequency[word]:
-                    self.frequency[word].append(filename)
+                if filename not in self.frequency[stemmed_word]:
+                    self.frequency[stemmed_word].append(filename)
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):

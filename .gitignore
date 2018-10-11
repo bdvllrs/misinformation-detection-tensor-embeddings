@@ -5,3 +5,4 @@ tensorly/
 sparse/
 tensorly-sparse/
 stats/
+config.json
