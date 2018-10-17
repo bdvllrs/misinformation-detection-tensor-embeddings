@@ -11,9 +11,9 @@ articleTensor.build_word_to_index(max_words=config['vocab_size'])
 
 nbre_total_article= config['num_real_articles']+config['num_fake_articles']
 pourcentage_know=[2,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95]
-pourcentage_voisin=np.linspace(1,100,10)
+pourcentage_voisin=np.array([1,2,4,8,16,24,48,96])
 ratios=[0.5,0.55,0.6,0.65,0.7,0.75,0.8]
-methods=[("decomposition",False),("decomposition",True),("GloVe","mean"),("GloVe","RNN")]
+methods=[("GloVe","mean"),("GloVe","RNN"),("decomposition",False),("decomposition",True)]
 
 for meth in enumerate(methods):
     debut_meth=time.time()
@@ -47,7 +47,7 @@ for meth in enumerate(methods):
                         _, (_, _, C) = ArticleTensor.get_parafac_decomposition(tensor, rank=config['rank_parafac_decomposition'])
                     if meth[1][0]=="GloVe":
                         tensor, labels, all_labels = articleTensor.get_tensor_Glove(meth[1][1],
-                                                                                    config["vocab_util_pourcentage"], ratio=ratio,
+                                                                                    ratio,
                                                                                     num_unknown=num_unknown_labels)
                         C = np.transpose(tensor)
 
@@ -68,15 +68,15 @@ for meth in enumerate(methods):
                 recall_std[i, j] = np.std(rec)
                 f1_score_mean[i, j] = np.mean(f1)
                 f1_score_std[i, j] = np.std(f1)
-            print('save_model')
-            np.save('../Stats/{}_method_{}_ration_accuracy_val stats_mean'.format(meth[1],k), accuracy_mean)
-            np.save('../Stats/{}_method_{}_ration_accuracy_val stats_std'.format(meth[1],k), accuracy_std)
-            np.save('../Stats/{}_method_{}_ration_precision_val stats_mean'.format(meth[1],k), accuracy_mean)
-            np.save('../Stats/{}_method_{}_ration_precision_val stats_std'.format(meth[1],k), accuracy_std)
-            np.save('../Stats/{}_method_{}_ration_recall_val stats_mean'.format(meth[1],k), accuracy_mean)
-            np.save('../Stats/{}_method_{}_ration_recall_val stats_std'.format(meth[1],k), accuracy_std)
-            np.save('../Stats/{}_method_{}_ration_f1_score_val stats_mean'.format(meth[1],k), accuracy_mean)
-            np.save('../Stats/{}_method_{}_ration_f1_score_val stats_std'.format(meth[1],k), accuracy_std)
+        print('save_model')
+        np.save('../Stats/{}_{}_method_{}_ration_accuracy_val stats_mean'.format(meth[1][0],meth[1][1],k), accuracy_mean)
+        np.save('../Stats/{}_{}_method_{}_ration_accuracy_val stats_std'.format(meth[1][0],meth[1][1],k), accuracy_std)
+        np.save('../Stats/{}_{}_method_{}_ration_precision_val stats_mean'.format(meth[1][0],meth[1][1],k), accuracy_mean)
+        np.save('../Stats/{}_{}_method_{}_ration_precision_val stats_std'.format(meth[1][0],meth[1][1],k), accuracy_std)
+        np.save('../Stats/{}_{}_method_{}_ration_recall_val stats_mean'.format(meth[1][0],meth[1][1],k), accuracy_mean)
+        np.save('../Stats/{}_{}_method_{}_ration_recall_val stats_std'.format(meth[1][0],meth[1][1],k), accuracy_std)
+        np.save('../Stats/{}_{}_method_{}_ration_f1_score_val stats_mean'.format(meth[1][0],meth[1][1],k), accuracy_mean)
+        np.save('../Stats/{}_{}_method_{}_ration_f1_score_val stats_std'.format(meth[1][0],meth[1][1],k), accuracy_std)
         print(time.time() - debut)
     print('temps method : ', meth)
     print(time.time()-debut_meth)
