@@ -5,6 +5,8 @@ Misinformation via Tensor Embeddings. arXiv preprint arXiv:1804.09088._
 
 # Install guide
 
+Requires python >= 3.6.
+
 ## Configuration
 Copy the `config.default.json` and rename the copy `config.json`.
 
@@ -24,10 +26,6 @@ $ git clone https://github.com/jcrist/tensorly.git tensorly-sparse & cd tensorly
 $ git checkout sparse-take-2
 ```
 Then place the `tensorly-sparse/tensorly` folder our project structure.
-
-## Credits to
-- TensorLy: Tensor Learning in Python, Jean Kossaifi and Yannis Panagakis and Anima Anandkumar and Maja Pantic
-
 # Configuration file for different method
 
 ## Method for the embedding of the article:
@@ -54,3 +52,8 @@ There is 2 method of embedding : mean or RNN
 "method_embedding_glove":"mean",
 "GloVe_adress": "../glove6B/glove.6B.100d.txt"
 ```
+
+# Credits to
+- TensorLy: Tensor Learning in Python, Jean Kossaifi and Yannis Panagakis and Anima Anandkumar and Maja Pantic
+- Vlad Niculae, Matt Kusner for the word mover's distance knn.
+

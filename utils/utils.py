@@ -91,3 +91,28 @@ def f1_score(prec,rec):
         return (2 * (prec * rec) / (prec + rec+1))
     else:
         return(2*(prec*rec)/(prec+rec))
+
+
+def get_fullpath(*path):
+    """
+    Returns an absolute path given a relative path
+    """
+    path = [os.path.curdir] + list(path)
+    return os.path.abspath(os.path.join(*path))
+
+
+def load_glove_model(glove_file):
+    """
+    :param glove_file: adress of glove file
+    :return:
+    """
+    print("Loading Glove Model")
+    f = open(glove_file, 'r')
+    model = {}
+    for line in f:
+        splitLine = line.split()
+        word = splitLine[0]
+        embedding = np.array([float(val) for val in splitLine[1:]])
+        model[word] = embedding
+    print("Done.", len(model), " words loaded!")
+    return model

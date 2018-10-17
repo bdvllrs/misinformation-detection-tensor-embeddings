@@ -6,40 +6,18 @@ import torch
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
 from utils import load_config
-config = load_config()
-
-
-def get_fullpath(*path):
-    """
-    Returns an absolute path given a relative path
-    """
-    path = [os.path.curdir] + list(path)
-    return os.path.abspath(os.path.join(*path))
-
-def loadGloveModel(gloveFile):
-    """
-    :param gloveFile: adress of glove file
-    :return:
-    """
-    print("Loading Glove Model")
-    f = open(gloveFile, 'r')
-    model = {}
-    for line in f:
-        splitLine = line.split()
-        word = splitLine[0]
-        embedding = np.array([float(val) for val in splitLine[1:]])
-        model[word] = embedding
-    print("Done.", len(model), " words loaded!")
-    return model
+from utils import get_fullpath, load_glove_model
 
 
 class ArticleTensor:
-    def __init__(self, path):
+    def __init__(self, config: dict):
         """
-        :param path: path to all the articles. Must contain Fake, Fake_title, Real, Real_title
+        :param config: config dictionary
+        :type config: dict
         """
-        self.path = path
-        self.nbre_all_article=0
+        self.config = config
+        self.path = config['dataset_path']
+        self.nbre_all_article = 0
         self.vocabulary = {}
         self.index_to_words = []
         self.RNN = torch.nn.GRUCell(100, 100)
@@ -49,11 +27,10 @@ class ArticleTensor:
             'fake': [],
             'real': []
         }
-        if config["method_decomposition_embedding"]=="GloVe":
-            self.glove = loadGloveModel(config["GloVe_adress"])
+        if config["method_decomposition_embedding"] == "GloVe":
+            self.glove = load_glove_model(config["GloVe_adress"])
 
-
-    def get_content(self, filename):
+    def get_content(self, filename: str):
         """
         Get the content of a given file
         :param filename: path to file to open
@@ -66,7 +43,8 @@ class ArticleTensor:
 
         for k, word in enumerate(content_words_tokenized):
             stemmed_word = ps.stem(word)
-            self.vocabulary[stemmed_word] = 1 if stemmed_word not in self.vocabulary.keys() else self.vocabulary[stemmed_word] + 1
+            self.vocabulary[stemmed_word] = 1 if stemmed_word not in self.vocabulary.keys() else self.vocabulary[
+                                                                                                     stemmed_word] + 1
             content_words_tokenized[k] = stemmed_word
             if stemmed_word not in self.frequency.keys():
                 self.frequency[stemmed_word] = [filename]
@@ -76,7 +54,7 @@ class ArticleTensor:
         return content_words_tokenized
 
     def get_articles(self, articles_directory, number_fake, number_real):
-        self.nbre_all_article=number_fake + number_real
+        self.nbre_all_article = number_fake + number_real
         files_path_fake = get_fullpath(self.path, articles_directory, 'Fake')
         files_path_fake_titles = get_fullpath(self.path, articles_directory, 'Fake_titles')
         files_path_real = get_fullpath(self.path, articles_directory, 'Real')
@@ -156,7 +134,7 @@ class ArticleTensor:
         coordinates = []
         data = []
         for k, word in enumerate(article):
-            if word in self.vocabulary and len(self.frequency[word]) < ratio*self.nbre_all_article:
+            if word in self.vocabulary and len(self.frequency[word]) < ratio * self.nbre_all_article:
                 neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
                     article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
                 word_key = self.get_word_index(word)
