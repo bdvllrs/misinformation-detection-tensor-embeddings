@@ -1,5 +1,5 @@
 from preprocessing import ArticlesProvider
-from utils import solve, embedding_matrix_2_kNN, load_config
+from utils import solve, embedding_matrix_2_kNN, load_config, get_rate,accuracy,precision,recall,f1_score
 import time
 import numpy as np
 
@@ -25,15 +25,16 @@ fin4 = time.time()
 print("FaBP done", fin4 - fin3)
 
 # Compute hit rate
-hits = 0.
-for i in range(len(beliefs)):
-    if beliefs[i] * all_labels[i] >= 0:
-        hits += 1
-
 print("return float belief", beliefs)
 beliefs[beliefs > 0] = 1
 beliefs[beliefs < 0] = -1
+
+TP, TN, FP, FN=get_rate(beliefs,labels, all_labels)
+acc = accuracy(TP, TN, FP, FN)
+prec = precision(TP, FP)
+rec = recall(TP, FN)
+f1=f1_score( prec,rec)
 print("return int belief", beliefs)
 print("labels correct", all_labels)
 print("labels to complete", labels)
-print("% Correct", hits / len(all_labels))
+print("% Correct (accuracy, precision, recall, f1_score)", 100*acc,prec*100,rec*100,f1*100)
