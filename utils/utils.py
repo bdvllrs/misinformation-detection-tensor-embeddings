@@ -46,3 +46,48 @@ def FaBP(D):
     h1 = (1 / (2 + 2 * np.max(D)))
     h2 = np.sqrt((-c1 + np.sqrt(c1 * c1 + 4 * c2)) / (8 * c2))
     return max(h1, h2)
+
+
+def get_rate(beliefs,labels,all_labels):
+    # Compute hit rate
+    TP = 0.
+    TN = 0
+    FP = 0
+    FN = 0
+    compte = 0
+    for l in range(len(beliefs)):
+        if labels[l] == 0:
+            compte = compte + 1
+            if beliefs[l] ==1 and all_labels[l] == 1:
+                TP += 1
+            if beliefs[l] ==-1 and all_labels[l] == -1:
+                TN += 1
+            if beliefs[l] ==1 and all_labels[l] ==-1:
+                FP += 1
+            if beliefs[l] ==-1 and all_labels[l] == 1:
+                FN += 1
+    return (TP/compte,TN/compte,FP/compte,FN/compte)
+
+def accuracy(TP,TN,FP,FN):
+    if TP+TN+FP+FN==0:
+        return ((TP + TN) / (TP + TN + FP + FN + 1))
+    else:
+        return((TP+TN)/(TP+TN+FP+FN))
+
+def precision(TP,FP):
+    if TP + FP ==0:
+        return ((TP ) / (TP + FP+1))
+    else:
+        return ((TP ) / (TP + FP))
+
+def recall(TP,FN):
+    if TP + FN == 0:
+        return ((TP) / (TP + FN+1))
+    else:
+        return((TP)/(TP + FN))
+
+def f1_score(prec,rec):
+    if (prec + rec)==0:
+        return (2 * (prec * rec) / (prec + rec+1))
+    else:
+        return(2*(prec*rec)/(prec+rec))
