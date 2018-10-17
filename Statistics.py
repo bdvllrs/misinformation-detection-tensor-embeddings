@@ -38,7 +38,7 @@ for meth in enumerate(methods):
                 f1=[]
                 num_nearest_neighbours=int(val2)
                 assert nbre_total_article >= num_nearest_neighbours, "Can't have more neighbours than nodes!"
-                for acc_repeat in range(20):
+                for acc_repeat in range(config["iteration_stat"]):
                     if meth[1][0]=="decomposition":
                         tensor, labels, all_labels = articleTensor.get_tensor_coocurrence(window=config['size_word_co_occurrence_window'],
                                                                                           num_unknown=num_unknown_labels,
@@ -78,5 +78,5 @@ for meth in enumerate(methods):
             np.save('../Stats/{}_method_{}_ration_f1_score_val stats_mean'.format(meth[1],k), accuracy_mean)
             np.save('../Stats/{}_method_{}_ration_f1_score_val stats_std'.format(meth[1],k), accuracy_std)
         print(time.time() - debut)
-    print('temps methode : ', meth)
+    print('temps method : ', meth)
     print(time.time()-debut_meth)
