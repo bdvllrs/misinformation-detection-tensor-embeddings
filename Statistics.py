@@ -1,4 +1,4 @@
-from ArticleTensor import ArticleTensor
+from preprocessing.ArticleTensor import ArticleTensor
 from utils import solve, embedding_matrix_2_kNN, load_config, get_rate, accuracy, precision, recall, f1_score
 import time
 import numpy as np
