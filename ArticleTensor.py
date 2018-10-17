@@ -1,8 +1,12 @@
 import os
 import nltk
 import numpy as np
+import torch
+
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
+from utils import load_config
+config = load_config()
 
 
 def get_fullpath(*path):
@@ -11,6 +15,22 @@ def get_fullpath(*path):
     """
     path = [os.path.curdir] + list(path)
     return os.path.abspath(os.path.join(*path))
+
+def loadGloveModel(gloveFile):
+    """
+    :param gloveFile: adress of glove file
+    :return:
+    """
+    print("Loading Glove Model")
+    f = open(gloveFile, 'r')
+    model = {}
+    for line in f:
+        splitLine = line.split()
+        word = splitLine[0]
+        embedding = np.array([float(val) for val in splitLine[1:]])
+        model[word] = embedding
+    print("Done.", len(model), " words loaded!")
+    return model
 
 
 class ArticleTensor:
@@ -22,12 +42,16 @@ class ArticleTensor:
         self.nbre_all_article=0
         self.vocabulary = {}
         self.index_to_words = []
+        self.RNN = torch.nn.GRUCell(100, 100)
         self.frequency = {}  # dictinnaire : clefs Words et attributs : liste de files dans lesquels ces mots sont
         self.words_to_index = {}
         self.articles = {
             'fake': [],
             'real': []
         }
+        if config["method_decomposition_embedding"]=="GloVe":
+            self.glove = loadGloveModel(config["GloVe_adress"])
+
 
     def get_content(self, filename):
         """
@@ -88,7 +112,39 @@ class ArticleTensor:
         self.index_to_words = list(self.index_to_words)
         self.words_to_index = {word: index for index, word in enumerate(self.index_to_words)}
 
-    def get_sparse_co_occurrence_matrix(self, article, window, article_index, use_frequency=True):
+    def get_glove_matrix(self, article, ratio, method="mean"):
+        """
+        Get the Glove of an article
+        :param article
+        """
+        N = 0
+        vector = np.zeros(100)
+        vector_rnn = np.zeros((len(article), 1, 100))
+        for k, word in enumerate(article):
+            if word in self.vocabulary and len(self.frequency[word]) < (ratio * self.nbre_all_article):
+                if method == "mean":
+                    try:
+                        N += 1
+                        vector = vector + self.glove[word]
+                    except Exception:
+                        vector = vector + self.glove['unk']
+                if method == "RNN":
+                    try:
+                        N += 1
+                        vector_rnn[k, :, :] = self.glove[word]
+                    except Exception:
+                        vector_rnn[k, :, :] = self.glove['unk']
+        # print("Nombre de mots considéré en pourcentage", float(N) / float(len(article)))
+        if method == "RNN":
+            hx = torch.zeros(1, 100)
+            for i in range(len(article)):
+                hx = self.RNN(torch.from_numpy(vector_rnn[i]).float(), hx)
+            vector = hx[0].detach().numpy()
+            return vector
+        else:
+            return vector / N
+
+    def get_sparse_co_occurrence_matrix(self, article, window, article_index, ratio, use_frequency=True):
         """
         Get the co occurrence matrix as sparse matrix of an article
         :param article_index: index of the corresponding article
@@ -100,7 +156,7 @@ class ArticleTensor:
         coordinates = []
         data = []
         for k, word in enumerate(article):
-            if word in self.vocabulary and len(self.frequency[word]) < self.nbre_all_article:
+            if word in self.vocabulary and len(self.frequency[word]) < ratio*self.nbre_all_article:
                 neighbooring_words = (article[max(0, k - half_window): k] if k > 0 else []) + (
                     article[k + 1: min(len(article), k + 1 + half_window)] if k < len(article) - 1 else [])
                 word_key = self.get_word_index(word)
@@ -113,7 +169,7 @@ class ArticleTensor:
                         data.append(1.)
         return coordinates, data
 
-    def get_tensor(self, window, num_unknown, use_frequency=True):
+    def get_tensor_coocurrence(self, window, num_unknown, ratio, use_frequency=True):
         articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
                                                                                 self.articles['real']]
         labels = []
@@ -134,12 +190,36 @@ class ArticleTensor:
         coordinates = []
         data = []
         for k, article in enumerate(articles):
-            coords, d = self.get_sparse_co_occurrence_matrix(article, window, k, use_frequency)
+            coords, d = self.get_sparse_co_occurrence_matrix(article, window, k, ratio, use_frequency)
             coordinates.extend(coords)
             data.extend(d)
         coordinates = list(zip(*coordinates))
         tensor = sparse.COO(coordinates, data,
                             shape=(len(self.index_to_words), len(self.index_to_words), len(articles)))
+        return tensor, labels, labels_untouched
+
+    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown):
+        articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
+                                                                                self.articles['real']]
+        labels = []
+        for k in range(len(articles)):
+            if k < len(self.articles['fake']):
+                labels.append(-1)
+            else:
+                labels.append(1)
+        # Shuffle the labels and articles
+        articles, labels = list(zip(*np.random.permutation(list(zip(articles, labels)))))
+        labels = list(labels)
+        labels_untouched = labels[:]
+        # Add zeros randomly to some labels
+        for k in range(num_unknown):
+            labels[k] = 0
+        articles, labels, labels_untouched = list(
+            zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
+        tensor = np.zeros((100, len(articles)))
+        for k, article in enumerate(articles):
+            tensor[:, k] = self.get_glove_matrix(article, ratio, method=method_embedding_glove)
+
         return tensor, labels, labels_untouched
 
     def get_word_index(self, word):

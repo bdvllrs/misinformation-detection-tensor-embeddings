@@ -1,6 +1,8 @@
 {
   "dataset_path": "../Dataset/fakenewsdata1/Public Data",
   "dataset_name": "Buzzfeed Political News Dataset",
+  "method_decomposition_embedding":"decomposition",
+  "method_embedding_glove":"mean",
 
   "num_nearest_neighbours": 5,
   "rank_parafac_decomposition": 10,
@@ -9,5 +11,7 @@
   "num_unknown_labels": 160,
   "size_word_co_occurrence_window": 5,
   "use_frequency": false,
-  "vocab_size": -1
+  "vocab_size": -1,
+  "GloVe_adress": "../glove6B/glove.6B.100d.txt",
+  "vocab_util_pourcentage":1
 }

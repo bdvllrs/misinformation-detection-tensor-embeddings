@@ -2,3 +2,4 @@ nltk
 tensorly
 numpy
 scikit-learn
+Download GloVe nlp.stanford.edu/data/glove.6B.zip
