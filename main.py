@@ -12,6 +12,10 @@ debut = time.time()
 articles = ArticlesProvider(config).setup()
 
 C, labels, all_labels = articles.get_tensor()
+print(C,labels)
+C, labels, all_labels = list(
+        zip(*np.random.permutation(list(zip(C, labels, all_labels)))))
+print(C,labels)
 
 # print(tensor.todense().dtype)
 fin = time.time()

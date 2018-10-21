@@ -12,5 +12,6 @@
   "use_frequency": false,
   "vocab_size": -1,
   "GloVe_adress": "../glove6B/glove.6B.100d.txt",
-  "vocab_util_pourcentage": 1
+  "vocab_util_pourcentage": 1,
+  "iteration_stat":20
 }

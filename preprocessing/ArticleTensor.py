@@ -163,8 +163,8 @@ class ArticleTensor:
         # Add zeros randomly to some labels
         for k in range(num_unknown):
             labels[k] = 0
-        articles, labels, labels_untouched = list(
-            zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
+        #articles, labels, labels_untouched = list(
+        #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         coordinates = []
         data = []
         for k, article in enumerate(articles):
@@ -192,12 +192,11 @@ class ArticleTensor:
         # Add zeros randomly to some labels
         for k in range(num_unknown):
             labels[k] = 0
-        articles, labels, labels_untouched = list(
-            zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
+        #articles, labels, labels_untouched = list(
+        #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         tensor = np.zeros((100, len(articles)))
         for k, article in enumerate(articles):
             tensor[:, k] = self.get_glove_matrix(article, ratio, method=method_embedding_glove)
-
         return tensor, labels, labels_untouched
 
     def get_word_index(self, word):
