@@ -14,6 +14,9 @@ class ArticleTensor:
         :param config: config dictionary
         :type config: dict
         """
+        print(
+            '\033[91m' + ' ArticleTensor is Deprecated! Please use ArticlesHandler and change values in the' +
+            ' configuration class using config.set. This class is not maintained anymore.')
         self.config = config
         self.path = config['dataset_path']
         self.nbre_all_article = 0
@@ -146,7 +149,7 @@ class ArticleTensor:
                         data.append(1.)
         return coordinates, data
 
-    def get_tensor_coocurrence(self, window, num_unknown, ratio, use_frequency=True,proportion_true_fake_label=0.5):
+    def get_tensor_coocurrence(self, window, num_unknown, ratio, use_frequency=True, proportion_true_fake_label=0.5):
         true_articles = [article['content'] for article in self.articles['real']]
         fake_articles = [article['content'] for article in self.articles['fake']]
         articles = true_articles + fake_articles
@@ -171,7 +174,7 @@ class ArticleTensor:
             if (labels[k] == -1) & (number_false_unknown > 0):
                 labels[k] = 0
                 number_false_unknown -= 1
-        #articles, labels, labels_untouched = list(
+        # articles, labels, labels_untouched = list(
         #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         coordinates = []
         data = []
@@ -184,7 +187,7 @@ class ArticleTensor:
                             shape=(len(self.index_to_words), len(self.index_to_words), len(articles)))
         return tensor, labels, labels_untouched
 
-    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown,proportion_true_fake_label=0.5):
+    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown, proportion_true_fake_label=0.5):
         true_articles = [article['content'] for article in self.articles['real']]
         fake_articles = [article['content'] for article in self.articles['fake']]
         articles = true_articles + fake_articles
@@ -209,7 +212,7 @@ class ArticleTensor:
             if (labels[k] == -1) & (number_false_unknown > 0):
                 labels[k] = 0
                 number_false_unknown -= 1
-        #articles, labels, labels_untouched = list(
+        # articles, labels, labels_untouched = list(
         #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         tensor = np.zeros((100, len(articles)))
         for k, article in enumerate(articles):
