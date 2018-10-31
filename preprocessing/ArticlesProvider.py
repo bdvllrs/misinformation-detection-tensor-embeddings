@@ -36,7 +36,7 @@ class ArticlesProvider:
         self.articleTensor.build_word_to_index(max_words=max_words)
 
     def get_tensor(self, method: str = None, window: int = None, num_unknown: int = None, ratio: float = None,
-                   use_frequency: bool = None, parafac_rank: int = None, method_embedding_glove: str = None):
+                   use_frequency: bool = None, parafac_rank: int = None, method_embedding_glove: str = None,proportion_true_fake_label=0.5):
         method = self.get_config('method_decomposition_embedding', method)
         window = self.get_config('size_word_co_occurrence_window', window)
         num_unknown = self.get_config('num_unknown_labels', num_unknown)
@@ -46,10 +46,12 @@ class ArticlesProvider:
         method_embedding_glove = self.get_config('method_embedding_glove', method_embedding_glove)
         if method == "decomposition":
             tensor, labels, all_labels = self.articleTensor.get_tensor_coocurrence(window, num_unknown, ratio,
-                                                                                   use_frequency)
+                                                                                   use_frequency,
+                                                                                   proportion_true_fake_label=proportion_true_fake_label)
             return self.articleTensor.get_parafac_decomposition(tensor, rank=parafac_rank)[1][2], labels, all_labels
         elif method == "GloVe":
             tensor, labels, all_labels = self.articleTensor.get_tensor_Glove(method_embedding_glove,
                                                                              ratio,
-                                                                             num_unknown=num_unknown)
+                                                                             num_unknown=num_unknown,
+                                                                             proportion_true_fake_label=proportion_true_fake_label)
             return transpose(tensor), labels, all_labels

@@ -11,7 +11,7 @@ assert config['num_fake_articles'] + config['num_real_articles'] > config[
 debut = time.time()
 articles = ArticlesProvider(config).setup()
 
-C, labels, all_labels = articles.get_tensor()
+C, labels, all_labels = articles.get_tensor(proportion_true_fake_label=config["proportion_true_fake_label"])
 print(C,labels)
 C, labels, all_labels = list(
         zip(*np.random.permutation(list(zip(C, labels, all_labels)))))
