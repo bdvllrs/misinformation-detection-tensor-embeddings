@@ -27,9 +27,13 @@ class Config:
                 if arg not in self.config.keys() or value is not None:
                     self.config[arg] = value
         self._is_set = is_set
+        self.default_config = self.config.copy()
 
     def set(self, key, value):
         self.config[key] = value
+
+    def reset(self, key):
+        self.config[key] = self.default_config[key]
 
     def is_set(self, key=None):
         """
