@@ -34,11 +34,14 @@ There are 2 choices : Method of the co-occurence matrix or embedding with GloVe.
 
 ### Co-occurence matrix
 
+`method_decomposition_embedding` can be `parafac` or `GloVe`.
 ```json
-"method_decomposition_embedding":"decomposition",
-"rank_parafac_decomposition": 10,
-"size_word_co_occurrence_window": 5,
-"use_frequency": false
+{
+    "method_decomposition_embedding": "parafac",
+    "rank_parafac_decomposition": 10,
+    "size_word_co_occurrence_window": 5,
+    "use_frequency": false
+}
 ```
 
 ### GloVe
@@ -48,9 +51,11 @@ The embedding with glove : download GloVe nlp.stanford.edu/data/glove.6B.zip
 There is 2 method of embedding : mean or RNN
 
 ```json
-"method_decomposition_embedding": "GloVe",
-"method_embedding_glove":"mean",
-"GloVe_adress": "../glove6B/glove.6B.100d.txt"
+{
+    "method_decomposition_embedding": "GloVe",
+    "method_embedding_glove": "mean",
+    "GloVe_adress": "../glove6B/glove.6B.100d.txt"
+}
 ```
 
 # Credits to

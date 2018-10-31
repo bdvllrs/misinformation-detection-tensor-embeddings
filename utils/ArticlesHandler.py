@@ -1,6 +1,6 @@
-from preprocessing.ParafacPreprocessor import ParafacPreprocessor
-from preprocessing.GloVePreprocessor import GloVePreprocessor
-from preprocessing.ArticlesProvider import ArticlesProvider
+from decomposition.ParafacDecomposition import ParafacDecomposition
+from decomposition.GloVeDecomposition import GloVeDecomposition
+from utils.ArticlesProvider import ArticlesProvider
 from utils import Config
 
 
@@ -20,9 +20,9 @@ class ArticlesHandler:
         self.articles = ArticlesProvider(config)
 
     def get_tensor(self):
-        if self.config.method_decomposition_embedding == 'decomposition':
-            preprocessor = ParafacPreprocessor(self.config, self.articles)
+        if self.config.method_decomposition_embedding == 'parafac':
+            decomposition = ParafacDecomposition(self.config, self.articles)
         else:  # elif self.config.method_decomposition_embedding == 'GloVe':
-            preprocessor = GloVePreprocessor(self.config, self.articles)
-        return preprocessor.preprocess()
+            decomposition = GloVeDecomposition(self.config, self.articles)
+        return decomposition.preprocess()
 

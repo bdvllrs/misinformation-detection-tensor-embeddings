@@ -1,5 +1,5 @@
-from preprocessing.ArticleTensor import ArticleTensor
-from utils import solve, embedding_matrix_2_kNN, load_config, get_rate, accuracy, precision, recall, f1_score
+from utils.ArticleTensor import ArticleTensor
+from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
 from utils.Config import Config
 import time
 import numpy as np

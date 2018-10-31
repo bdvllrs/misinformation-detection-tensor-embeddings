@@ -1,4 +1,4 @@
-from preprocessing import ArticlesHandler
+from utils.ArticlesHandler import ArticlesHandler
 from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
 from utils import Config
 import time
