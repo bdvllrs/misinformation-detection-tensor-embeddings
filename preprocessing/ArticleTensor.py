@@ -5,7 +5,6 @@ import torch
 
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
-from utils import load_config
 from utils import get_fullpath, load_glove_model
 
 
@@ -147,9 +146,10 @@ class ArticleTensor:
                         data.append(1.)
         return coordinates, data
 
-    def get_tensor_coocurrence(self, window, num_unknown, ratio, use_frequency=True):
-        articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
-                                                                                self.articles['real']]
+    def get_tensor_coocurrence(self, window, num_unknown, ratio, use_frequency=True,proportion_true_fake_label=0.5):
+        true_articles = [article['content'] for article in self.articles['real']]
+        fake_articles = [article['content'] for article in self.articles['fake']]
+        articles = true_articles + fake_articles
         labels = []
         for k in range(len(articles)):
             if k < len(self.articles['fake']):
@@ -161,8 +161,16 @@ class ArticleTensor:
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
-        for k in range(num_unknown):
-            labels[k] = 0
+        num_known = len(labels) - num_unknown
+        number_true_unknown = len(true_articles) - int(proportion_true_fake_label * num_known)
+        number_false_unknown = len(fake_articles) - (num_known - int(proportion_true_fake_label * num_known))
+        for k in range(len(labels)):
+            if (number_true_unknown > 0) & (labels[k] == 1):
+                labels[k] = 0
+                number_true_unknown -= 1
+            if (labels[k] == -1) & (number_false_unknown > 0):
+                labels[k] = 0
+                number_false_unknown -= 1
         #articles, labels, labels_untouched = list(
         #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         coordinates = []
@@ -176,9 +184,10 @@ class ArticleTensor:
                             shape=(len(self.index_to_words), len(self.index_to_words), len(articles)))
         return tensor, labels, labels_untouched
 
-    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown):
-        articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
-                                                                                self.articles['real']]
+    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown,proportion_true_fake_label=0.5):
+        true_articles = [article['content'] for article in self.articles['real']]
+        fake_articles = [article['content'] for article in self.articles['fake']]
+        articles = true_articles + fake_articles
         labels = []
         for k in range(len(articles)):
             if k < len(self.articles['fake']):
@@ -190,8 +199,16 @@ class ArticleTensor:
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
-        for k in range(num_unknown):
-            labels[k] = 0
+        num_known = len(labels) - num_unknown
+        number_true_unknown = len(true_articles) - int(proportion_true_fake_label * num_known)
+        number_false_unknown = len(fake_articles) - (num_known - int(proportion_true_fake_label * num_known))
+        for k in range(len(labels)):
+            if (number_true_unknown > 0) & (labels[k] == 1):
+                labels[k] = 0
+                number_true_unknown -= 1
+            if (labels[k] == -1) & (number_false_unknown > 0):
+                labels[k] = 0
+                number_false_unknown -= 1
         #articles, labels, labels_untouched = list(
         #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
         tensor = np.zeros((100, len(articles)))

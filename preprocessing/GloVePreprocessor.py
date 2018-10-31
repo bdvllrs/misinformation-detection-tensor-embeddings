@@ -14,16 +14,17 @@ class GloVePreprocessor(Preprocessor):
     def preprocess(self):
         tensor, labels, all_labels = self.get_tensor_Glove(self.config.method_embedding_glove,
                                                            self.config.vocab_util_pourcentage,
-                                                           num_unknown=self.config.num_unknown_labels)
+                                                           self.config.num_unknown_labels,
+                                                           self.config.proportion_true_fake_label)
         return np.transpose(tensor), labels, all_labels
 
-    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown):
-        articles = [article['content'] for article in self.articles.articles['fake']] + [article['content'] for article
-                                                                                         in
-                                                                                         self.articles.articles['real']]
+    def get_tensor_Glove(self, method_embedding_glove, ratio, num_unknown, proportion_true_fake_label=0.5):
+        true_articles = [article['content'] for article in self.articles.articles['real']]
+        fake_articles = [article['content'] for article in self.articles.articles['fake']]
+        articles = true_articles + fake_articles
         labels = []
         for k in range(len(articles)):
-            if k < len(self.articles['fake']):
+            if k < len(self.articles.articles['fake']):
                 labels.append(-1)
             else:
                 labels.append(1)
@@ -32,8 +33,16 @@ class GloVePreprocessor(Preprocessor):
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
-        for k in range(num_unknown):
-            labels[k] = 0
+        num_known = len(labels) - num_unknown
+        number_true_unknown = len(true_articles) - int(proportion_true_fake_label * num_known)
+        number_false_unknown = len(fake_articles) - (num_known - int(proportion_true_fake_label * num_known))
+        for k in range(len(labels)):
+            if (number_true_unknown > 0) & (labels[k] == 1):
+                labels[k] = 0
+                number_true_unknown -= 1
+            if (labels[k] == -1) & (number_false_unknown > 0):
+                labels[k] = 0
+                number_false_unknown -= 1
         tensor = np.zeros((100, len(articles)))
         for k, article in enumerate(articles):
             tensor[:, k] = self.get_glove_matrix(article, ratio, method=method_embedding_glove)

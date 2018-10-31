@@ -8,6 +8,7 @@
   "num_fake_articles": 100,
   "num_real_articles": 100,
   "num_unknown_labels": 160,
+  "proportion_true_fake_label": 0.5,
   "size_word_co_occurrence_window": 5,
   "use_frequency": false,
   "vocab_size": -1,
