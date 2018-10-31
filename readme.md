@@ -8,7 +8,7 @@ Misinformation via Tensor Embeddings. arXiv preprint arXiv:1804.09088._
 Requires python >= 3.6.
 
 ## Configuration
-Copy the `config.default.json` and rename the copy `config.json`.
+Copy the `config/config.default.json` and rename the copy `config/config.json`.
 
 This file will contain the configuration of the project.
 ## To use sparse matrices
@@ -48,7 +48,7 @@ The embedding with glove : download GloVe nlp.stanford.edu/data/glove.6B.zip
 There is 2 method of embedding : mean or RNN
 
 ```json
-"method_decomposition_embedding":"GloVe",
+"method_decomposition_embedding": "GloVe",
 "method_embedding_glove":"mean",
 "GloVe_adress": "../glove6B/glove.6B.100d.txt"
 ```
