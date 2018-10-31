@@ -4,27 +4,25 @@ from tensorly.contrib.sparse.decomposition import tucker
 
 
 class ParafacDecomposition(Decomposition):
-    def preprocess(self):
-        tensor, labels, all_labels = self.get_tensor_coocurrence(self.config.size_word_co_occurrence_window,
-                                                                 self.config.num_unknown_labels,
-                                                                 self.config.vocab_util_pourcentage)
+    def apply(self):
+        tensor = self.get_tensor_coocurrence(self.config.size_word_co_occurrence_window,
+                                             self.config.num_unknown_labels,
+                                             self.config.vocab_util_pourcentage)
 
-        return self.get_parafac_decomposition(tensor, rank=self.config.rank_parafac_decomposition)[1][
-                   2], labels, all_labels
+        return self.get_parafac_decomposition(tensor, rank=self.config.rank_parafac_decomposition)[1][2]
 
     def get_tensor_coocurrence(self, window, ratio, use_frequency=True):
-        articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
-                                                                                self.articles['real']]
         coordinates = []
         data = []
-        for k, article in enumerate(self.articles):
+        for k, article in enumerate(self.articles.article_list):
             coords, d = self.get_sparse_co_occurrence_matrix(article, window, k, ratio, use_frequency)
             coordinates.extend(coords)
             data.extend(d)
         coordinates = list(zip(*coordinates))
         tensor = sparse.COO(coordinates, data,
-                            shape=(len(self.articles.index_to_words), len(self.articles.index_to_words), len(articles)))
-        return tensor, self.articles.labels, self.articles.labels_untouched
+                            shape=(len(self.articles.index_to_words), len(self.articles.index_to_words),
+                                   len(self.articles.article_list)))
+        return tensor
 
     def get_sparse_co_occurrence_matrix(self, article, window, article_index, ratio, use_frequency=True):
         """

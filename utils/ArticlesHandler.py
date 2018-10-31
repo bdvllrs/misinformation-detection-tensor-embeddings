@@ -2,7 +2,7 @@ from decomposition.ParafacDecomposition import ParafacDecomposition
 from decomposition.GloVeDecomposition import GloVeDecomposition
 from utils.ArticlesProvider import ArticlesProvider
 from utils import Config
-from preprocessing.Preprocessor import Preprocessor
+from postprocessing.PostProcessing import PostProcessing
 
 
 class ArticlesHandler:
@@ -19,28 +19,27 @@ class ArticlesHandler:
         """
         self.config = config
         self.articles = ArticlesProvider(config)
-        self.preprocessors = {}
+        self.postprocessors = {}
+        self.last_tensor = None
 
-    def setup(self):
-        """
-        Apply all preprocessing to the articles
-        :return:
-        """
-        for preprocessor in self.preprocessors.values():
-            preprocessor.preprocess()
+    def postprocess(self):
+        for name, postprocessor in self.postprocessors.items():
+            print('Running', name, 'postprocessor')
+            postprocessor.apply(self.last_tensor)
 
     def get_tensor(self):
         if self.config.method_decomposition_embedding == 'parafac':
             decomposition = ParafacDecomposition(self.config, self.articles)
         else:  # elif self.config.method_decomposition_embedding == 'GloVe':
             decomposition = GloVeDecomposition(self.config, self.articles)
-        return decomposition.preprocess()
+        self.last_tensor = decomposition.apply()
+        return self.last_tensor
 
-    def add_preprocessing(self, preprocessor: Preprocessor, name=None):
+    def add_postprocessing(self, postprocessor: PostProcessing, name=None):
         """
-        Add a new preprocessing or update already existing
+        Add a new postprocessing or update already existing
         """
         if name is None:
-            name = "_internal_" + str(len(self.preprocessors.keys()))
-        self.preprocessors[name] = preprocessor
+            name = "_internal_" + str(len(self.postprocessors.keys()))
+        self.postprocessors[name] = postprocessor
 

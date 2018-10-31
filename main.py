@@ -3,6 +3,7 @@ from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, 
 from utils import Config
 import time
 import numpy as np
+from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
 
 config = Config(file='config')
 
@@ -11,7 +12,14 @@ assert config.num_fake_articles + config.num_real_articles > config.num_nearest_
 debut = time.time()
 articles = ArticlesHandler(config)
 
-C, labels, all_labels = articles.get_tensor()
+C = articles.get_tensor()
+# Select most important label in each connected
+select_labels = SelectLabelsPostprocessor(config, articles.articles)
+articles.add_postprocessing(select_labels, "label-selection")
+articles.postprocess()
+labels = articles.articles.labels
+all_labels = articles.articles.labels_untouched
+
 print(C, labels)
 C, labels, all_labels = list(
     zip(*np.random.permutation(list(zip(C, labels, all_labels)))))
@@ -42,3 +50,4 @@ print("return int belief", beliefs)
 print("labels correct", all_labels)
 print("labels to complete", labels)
 print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
+print(len(labels == 0)/len(labels), '% of labels')

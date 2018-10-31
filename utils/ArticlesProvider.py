@@ -21,11 +21,12 @@ class ArticlesProvider:
             'fake': [],
             'real': []
         }
+        self.article_list = []
         self.labels = []
         self.labels_untouched = []
         self.load_articles(self.config.dataset_name, self.config.num_fake_articles, self.config.num_real_articles)
         self._build_word_to_index()
-        self._compute_labels(self.config.num_unknown_labels, self.config.proportion_true_fake_label)
+        self.compute_labels(self.config.num_unknown_labels, self.config.proportion_true_fake_label)
 
     def _get_content(self, filename: str):
         """
@@ -95,7 +96,7 @@ class ArticlesProvider:
             return self.words_to_index[word]
         return self.words_to_index['<unk>']
 
-    def _compute_labels(self, num_unknown, proportion_true_fake_label):
+    def compute_labels(self, num_unknown, proportion_true_fake_label):
         true_articles = [article['content'] for article in self.articles['real']]
         fake_articles = [article['content'] for article in self.articles['fake']]
         articles = true_articles + fake_articles
@@ -122,4 +123,4 @@ class ArticlesProvider:
                 number_false_unknown -= 1
         self.labels = labels
         self.labels_untouched = labels_untouched
-
+        self.article_list = articles
