@@ -1,6 +1,5 @@
 from decomposition.Decomposition import Decomposition
 import sparse
-import numpy as np
 from tensorly.contrib.sparse.decomposition import tucker
 
 
