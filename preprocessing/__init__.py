@@ -1,2 +1,6 @@
 from preprocessing.ArticleTensor import ArticleTensor
+from preprocessing.ArticlesHandler import ArticlesHandler
+from preprocessing.Preprocessor import Preprocessor
 from preprocessing.ArticlesProvider import ArticlesProvider
+from preprocessing.ParafacPreprocessor import ParafacPreprocessor
+from preprocessing.GloVePreprocessor import GloVePreprocessor
