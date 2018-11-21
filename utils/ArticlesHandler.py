@@ -1,3 +1,4 @@
+from decomposition.LDA_idf import LDADecomposiotion
 from decomposition.ParafacDecomposition import ParafacDecomposition
 from decomposition.GloVeDecomposition import GloVeDecomposition
 from decomposition.TransformerDecomposition import TransformerDecomposition
@@ -35,6 +36,8 @@ class ArticlesHandler:
             decomposition = GloVeDecomposition(self.config, self.articles)
         elif self.config.method_decomposition_embedding == 'Transformer':
             decomposition = TransformerDecomposition(self.config, self.articles)
+        elif self.config.method_decomposition_embedding == 'LDA':
+            decomposition = LDADecomposiotion(self.config, self.articles)
 
         self.last_tensor = decomposition.apply()
         return self.last_tensor
