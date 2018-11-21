@@ -61,7 +61,23 @@ There is 2 method of embedding : mean or RNN
 ### Transformer
 
 Git clone the project transformer-pytorch-hugging face, rename the file transformer and download the pre-trained model
-of OpenAI.
+of OpenAI. Set the config path :
+
+```json
+{
+  "encoder_path":"transformer/model/encoder_bpe_40000.json",
+  "bpe_path":"transformer/model/vocab_40000.bpe",
+  "method_decomposition_embedding":"Transformer"
+  }
+```
+
+### LDA-idf
+
+```json
+{
+  "method_decomposition_embedding":"LDA"
+  }
+```
 
 
 
