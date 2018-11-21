@@ -5,6 +5,7 @@ tensorly/
 sparse/
 tensorly-sparse/
 stats/
-config.json
+config/
+!config/config.default.json
 Stats/
 transformer/

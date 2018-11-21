@@ -1,0 +1,3 @@
+from decomposition.Decomposition import Decomposition
+from decomposition.GloVeDecomposition import GloVeDecomposition
+from decomposition.ParafacDecomposition import ParafacDecomposition
