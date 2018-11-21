@@ -58,6 +58,13 @@ There is 2 method of embedding : mean or RNN
 }
 ```
 
+### Transformer
+
+Git clone the project transformer-pytorch-hugging face, rename the file transformer and download the pre-trained model
+of OpenAI.
+
+
+
 # Credits to
 - TensorLy: Tensor Learning in Python, Jean Kossaifi and Yannis Panagakis and Anima Anandkumar and Maja Pantic
 - Vlad Niculae, Matt Kusner for the word mover's distance knn.
