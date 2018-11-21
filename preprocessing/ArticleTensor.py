@@ -2,11 +2,17 @@ import os
 import nltk
 import numpy as np
 import torch
-
+import spacy
+import ftfy
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
 from utils import load_config
 from utils import get_fullpath, load_glove_model
+from transformer.model_pytorch import TransformerModel, load_openai_pretrained_model, DEFAULT_CONFIG
+import torch
+import tqdm
+import json
+import re
 
 
 class ArticleTensor:
@@ -29,6 +35,16 @@ class ArticleTensor:
         }
         if config["method_decomposition_embedding"] == "GloVe":
             self.glove = load_glove_model(config["GloVe_adress"])
+
+        if config["method_decomposition_embedding"] == "Transformer":
+            self.encoder = json.load(open(config["encoder_path"]))
+            merges = open(config["bpe_path"], encoding='utf-8').read().split('\n')[1:-1]
+            merges = [tuple(merge.split()) for merge in merges]
+            self.bpe_ranks = dict(zip(merges, range(len(merges))))
+            self.bpe_ranks = dict(zip(merges, range(len(merges))))
+            self.model = TransformerModel(DEFAULT_CONFIG)
+            load_openai_pretrained_model(self.model,  path='./transformer/model/', path_names='./transformer')
+            self.cache = {}
 
     def get_content(self, filename: str):
         """
@@ -207,6 +223,91 @@ class ArticleTensor:
             return self.words_to_index[word]
         return self.words_to_index['<unk>']
 
+    def bpe(self, token):
+        word = tuple(token[:-1]) + ( token[-1] + '</w>',)
+        if token in self.cache:
+            return self.cache[token]
+        pairs = self.get_pairs(word)
+
+        if not pairs:
+            return token+'</w>'
+
+        while True:
+            bigram = min(pairs, key = lambda pair: self.bpe_ranks.get(pair, float('inf')))
+            if bigram not in self.bpe_ranks:
+                break
+            first, second = bigram
+            new_word = []
+            i = 0
+            while i < len(word):
+                try:
+                    j = word.index(first, i)
+                    new_word.extend(word[i:j])
+                    i = j
+                except:
+                    new_word.extend(word[i:])
+                    break
+
+                if word[i] == first and i < len(word)-1 and word[i+1] == second:
+                    new_word.append(first+second)
+                    i += 2
+                else:
+                    new_word.append(word[i])
+                    i += 1
+            new_word = tuple(new_word)
+            word = new_word
+            if len(word) == 1:
+                break
+            else:
+                pairs = self.get_pairs(word)
+        word = ' '.join(word)
+        if word == '\n  </w>':
+            word = '\n</w>'
+        self.cache[token] = word
+        return word
+
+
+    def get_tensor_Transformer(self, num_unknown):
+        articles = [article['content'] for article in self.articles['fake']] + [article['content'] for article in
+                                                                                self.articles['real']]
+        labels = []
+        for k in range(len(articles)):
+            if k < len(self.articles['fake']):
+                labels.append(-1)
+            else:
+                labels.append(1)
+        # Shuffle the labels and articles
+        articles, labels = list(zip(*np.random.permutation(list(zip(articles, labels)))))
+        labels = list(labels)
+        labels_untouched = labels[:]
+        # Add zeros randomly to some labels
+        for k in range(num_unknown):
+            labels[k] = 0
+        #articles, labels, labels_untouched = list(
+        #    zip(*np.random.permutation(list(zip(articles, labels, labels_untouched)))))
+        tensor = self.encode(articles)
+        maximum_taille_article = max([len(i) for i in tensor])
+        tensor_final = torch.zeros(512, maximum_taille_article).long()
+        for index, val  in enumerate(tensor):
+            for index_encode, encode in enumerate(val):
+                tensor_final[index, index_encode] = encode
+        embedding = self.model(tensor_final)[0][:len(labels)]
+
+        return embedding, labels, labels_untouched
+
+    def encode(self, texts):
+        self.nlp = spacy.load('en', disable=['parser', 'tagger', 'ner', 'textcat'])
+        texts_tokens = []
+        for text in texts:
+            text = ' '.join(text)
+            text = self.nlp(self.text_standardize(ftfy.fix_text(text)))
+            text_tokens = []
+            for token in text:
+                text_tokens.extend([self.encoder.get(t, 0) for t in self.bpe(token.text.lower()).split(' ')])
+            texts_tokens.append(text_tokens)
+        return texts_tokens
+
+
     @staticmethod
     def get_parafac_decomposition(tensor, rank):
         """
@@ -216,3 +317,32 @@ class ArticleTensor:
         :return: 3 matrix: (vocab, rank) (vocab, rank) and (num of articles, rank)
         """
         return tucker(tensor, rank=rank)
+
+
+    def get_pairs(self, word):
+        """
+        Return set of symbol pairs in a word.
+        word is represented as tuple of symbols (symbols being variable-length strings)
+        """
+        pairs = set()
+        prev_char = word[0]
+        for char in word[1:]:
+            pairs.add((prev_char, char))
+            prev_char = char
+        return pairs
+
+
+    def text_standardize(self, text):
+        """
+        fixes some issues the spacy tokenizer had on books corpus
+        also does some whitespace standardization
+        """
+        text = text.replace('—', '-')
+        text = text.replace('–', '-')
+        text = text.replace('―', '-')
+        text = text.replace('…', '...')
+        text = text.replace('´', "'")
+        text = re.sub(r'''(-+|~+|!+|"+|;+|\?+|\++|,+|\)+|\(+|\\+|\/+|\*+|\[+|\]+|}+|{+|\|+|_+)''', r' \1 ', text)
+        text = re.sub(r'\s*\n\s*', ' \n ', text)
+        text = re.sub(r'[^\S\n]+', ' ', text)
+        return text.strip()

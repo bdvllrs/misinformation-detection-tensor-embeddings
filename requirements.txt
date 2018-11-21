@@ -3,3 +3,5 @@ tensorly
 numpy
 scikit-learn
 torch
+spacy
+ftfy

@@ -52,4 +52,7 @@ class ArticlesProvider:
             tensor, labels, all_labels = self.articleTensor.get_tensor_Glove(method_embedding_glove,
                                                                              ratio,
                                                                              num_unknown=num_unknown)
-            return transpose(tensor), labels, all_labels
+        elif method == "Transformer":
+            tensor, labels, all_labels = self.articleTensor.get_tensor_Transformer(num_unknown=num_unknown)
+
+        return transpose(tensor), labels, all_labels
