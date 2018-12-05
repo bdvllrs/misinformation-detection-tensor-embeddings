@@ -8,3 +8,7 @@ stats/
 config/
 !config/config.default.json
 Stats/
+
+.ipynb_checkpoints/
+
+pygcn/

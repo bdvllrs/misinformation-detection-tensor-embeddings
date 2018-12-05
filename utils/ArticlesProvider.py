@@ -21,6 +21,7 @@ class ArticlesProvider:
             'fake': [],
             'real': []
         }
+        self.original_articles = {'fake': [], 'real': []}
         self.article_list = []
         self.labels = []
         self.labels_untouched = []
@@ -28,19 +29,21 @@ class ArticlesProvider:
         self._build_word_to_index()
         self.compute_labels(self.config.num_unknown_labels, self.config.proportion_true_fake_label)
 
-    def _get_content(self, filename: str):
+    def _get_content(self, filename: str, type: str = 'fake'):
         """
         Get the content of a given file
         :param filename: path to file to open
         """
         ps = nltk.PorterStemmer()
         with open(filename, 'r', encoding="utf-8", errors='ignore') as document:
-            content = document.read().replace('\n', '').replace('\r', '')
+            content = document.read().replace('\n', '').replace('\r', '').replace("\\'", "'")
+        self.original_articles[type].append(content)
         content_words_tokenized = nltk.word_tokenize(content.lower())
         # Add words in the vocab
 
         for k, word in enumerate(content_words_tokenized):
             stemmed_word = ps.stem(word)
+            # stemmed_word = word
             self.vocabulary[stemmed_word] = 1 if stemmed_word not in self.vocabulary.keys() else self.vocabulary[
                                                                                                      stemmed_word] + 1
             content_words_tokenized[k] = stemmed_word
@@ -61,13 +64,13 @@ class ArticlesProvider:
         files_real = np.random.choice(os.listdir(files_path_real), number_real)  # Get all files in the real directory
         for file in files_fake:
             self.articles['fake'].append({
-                'content': self._get_content(get_fullpath(files_path_fake, file)),
-                'title': self._get_content(get_fullpath(files_path_fake_titles, file))
+                'content': self._get_content(get_fullpath(files_path_fake, file), type='fake'),
+                'title': self._get_content(get_fullpath(files_path_fake_titles, file), type='fake')
             })
         for file in files_real:
             self.articles['real'].append({
-                'content': self._get_content(get_fullpath(files_path_real, file)),
-                'title': self._get_content(get_fullpath(files_path_real_titles, file))
+                'content': self._get_content(get_fullpath(files_path_real, file), type='real'),
+                'title': self._get_content(get_fullpath(files_path_real_titles, file), type='real')
             })
 
     def _build_word_to_index(self, in_freq_order=True, max_words=-1):

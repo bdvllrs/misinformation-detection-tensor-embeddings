@@ -58,7 +58,16 @@ There is 2 method of embedding : mean or RNN
 }
 ```
 
+# WMD
+Install packages:
+
+- spacy
+- wmd
+
+
+
 # Credits to
+- Kipf, Thomas N and Welling, Max, _Semi-Supervised Classification with Graph Convolutional Networks_. [https://github.com/tkipf/pygcn]().
 - TensorLy: Tensor Learning in Python, Jean Kossaifi and Yannis Panagakis and Anima Anandkumar and Maja Pantic
 - Vlad Niculae, Matt Kusner for the word mover's distance knn.
 

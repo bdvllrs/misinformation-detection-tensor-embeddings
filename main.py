@@ -14,9 +14,9 @@ articles = ArticlesHandler(config)
 
 C = articles.get_tensor()
 # Select most important label in each connected
-select_labels = SelectLabelsPostprocessor(config, articles.articles)
-articles.add_postprocessing(select_labels, "label-selection")
-articles.postprocess()
+# select_labels = SelectLabelsPostprocessor(config, articles.articles)
+# articles.add_postprocessing(select_labels, "label-selection")
+# articles.postprocess()
 labels = articles.articles.labels
 all_labels = articles.articles.labels_untouched
 

@@ -22,3 +22,20 @@ def embedding_matrix_2_kNN(X, k, mode='connectivity'):
     KNN = KNN_nonsym + np.transpose(KNN_nonsym)
     KNN[KNN == 2] = 1
     return KNN
+
+
+def knn_similarities(articles, k):
+    """
+    :param articles: articles of nlp obj of spacy
+    :param k: number of neighboors
+    :return:
+    """
+    similarities = np.array([[art1.similarity(art2) for art1 in articles] for art2 in articles])
+    index_higest_similarities = np.argpartition(similarities, k, axis=1)[:, :k]
+    adj_mat = np.zeros((len(articles), len(articles)), dtype=int)
+    for i, neightbors in enumerate(index_higest_similarities):
+        adj_mat[i, neightbors] = 1
+    # Force symetric
+    adj_mat = adj_mat + np.transpose(adj_mat)
+    adj_mat[adj_mat == 2] = 1
+    return adj_mat
