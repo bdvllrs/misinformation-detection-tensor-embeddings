@@ -14,5 +14,7 @@
   "vocab_size": -1,
   "GloVe_adress": "../glove6B/glove.6B.100d.txt",
   "vocab_util_pourcentage": 1,
-  "iteration_stat":20
+  "iteration_stat":20,
+  "encoder_path":"transformer/model/encoder_bpe_40000.json",
+  "bpe_path":"transformer/model/vocab_40000.bpe"
 }
