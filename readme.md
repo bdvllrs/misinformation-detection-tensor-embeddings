@@ -58,12 +58,6 @@ There is 2 method of embedding : mean or RNN
 }
 ```
 
-# WMD
-Install packages:
-
-- spacy
-- wmd
-
 ### Transformer
 
 Git clone the project transformer-pytorch-hugging face, rename the file transformer and download the pre-trained model
@@ -84,6 +78,12 @@ of OpenAI. Set the config path :
   "method_decomposition_embedding":"LDA"
   }
 ```
+
+# WMD
+Install packages:
+
+- spacy
+- wmd
 
 
 # Credits to
