@@ -1,6 +1,6 @@
 # Bibliography
 
-## Different types of graph for semi-supervised learning
+## Different types of graphs for semi-supervised learning
 
 Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the Loop
 
