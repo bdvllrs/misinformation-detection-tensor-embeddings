@@ -1,10 +1,15 @@
 # Bibliography
 
+- Guacho, G. B., Abdali, S., Shah, N., & Papalexakis, E. E. (2018). [Semi-supervised Content-based Detection of Misinformation via Tensor Embeddings.](https://arxiv.org/abs/1804.09088)
+
 ## Different types of graphs for semi-supervised learning
 
 Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the Loop
 
 ## 1 - Classification
+
+- Velickovic, Petar, et al. ["Graph attention networks."](https://arxiv.org/abs/1710.10903) (2018)
+
 - Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://arxiv.org/abs/1803.0373) (2018)
 
 - Liao, Renjie, et al. ["Graph Partition Neural Networks for Semi-Supervised Classification."](https://arxiv.org/abs/1803.06272) (2018)
@@ -40,3 +45,15 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 - Qian, Feng, et al. ["Neural User Response Generator: Fake News Detection with Collective User Intelligence."](https://www.ijcai.org/proceedings/2018/533) (2018)
 
 - Oliver, Avital, et al. ["Realistic Evaluation of Deep Semi-Supervised Learning Algorithms."](https://arxiv.org/abs/1804.09170) (2018)
+
+- Kingma, Durk P., et al. ["Semi-supervised learning with deep generative models."](https://arxiv.org/abs/1406.5298) (2014)
+
+- Kusner, M., Sun, Y., Kolkin, N., & Weinberger, K. (2015, June). [From word embeddings to document distances.](https://dl.acm.org/citation.cfm?id=3045221)
+
+- Wu, L., & Liu, H. (2018, February). [Tracing fake-news footprints: Characterizing social media messages by how they propagate.](www.public.asu.edu/~liangwu1/WSDM18_TraceMiner.pdf)
+
+- Shu, K., Mahudeswaran, D., Wang, S., Lee, D., & Liu, H. (2018). [FakeNewsNet: A Data Repository with News Content, Social Context and Dynamic Information for Studying Fake News on Social Media.](https://arxiv.org/pdf/1809.01286.pdf)
+
+- Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). [Fake news detection on social media: A data mining perspective](https://www.kdd.org/exploration_files/19-1-Article2.pdf)
+
+- Conti, M., Lain, D., Lazzeretti, R., Lovisotto, G., & Quattrociocchi, W. (2017, December). [It's always April fools' day!: On the difficulty of social network misinformation classification via propagation features.](https://ieeexplore.ieee.org/abstract/document/8267653)
