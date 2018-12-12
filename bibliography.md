@@ -57,3 +57,5 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 - Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). [Fake news detection on social media: A data mining perspective](https://www.kdd.org/exploration_files/19-1-Article2.pdf)
 
 - Conti, M., Lain, D., Lazzeretti, R., Lovisotto, G., & Quattrociocchi, W. (2017, December). [It's always April fools' day!: On the difficulty of social network misinformation classification via propagation features.](https://ieeexplore.ieee.org/abstract/document/8267653)
+
+- Ruder, S., Glover, J., Mehrabani, A., & Ghaffari, P. (2018). [360 deg Stance Detection.](https://arxiv.org/abs/1804.00982)
