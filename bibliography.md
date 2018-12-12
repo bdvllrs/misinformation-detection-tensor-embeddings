@@ -5,34 +5,18 @@
 Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the Loop
 
 ## 1 - Only classification
-- Attention - based graph neural network semi-supervised learning
-Kiran K. Thekumparampil ∗ , Chong Wang † , Sewoong Oh ‡ , and Li-Jia Li § 
-Google
+- Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://arxiv.org/abs/1803.0373) (2018)
 
-- Renjie Liao ∗, Marc Brockschmidt Daniel Tarlow ∗ Alexander L. GauntRaquel Urtasun, Richard Zemel
-Toronto : Google, microsoft et Vector Institute
+- Liao, Renjie, et al. ["Graph Partition Neural Networks for Semi-Supervised Classification."](https://arxiv.org/abs/1803.06272) (2018)
 
-- Graph Convolutional Networks for Text Classification
-Liang Yao, Chengsheng Mao, Yuan Luo ∗
-Northwestern University
+- Yao, Liang, Chengsheng Mao, and Yuan Luo. ["Graph Convolutional Networks for Text Classification."](https://arxiv.org/abs/1809.05679) (2018)
 
-- Every Node Counts: Self-Ensembling Graph Convolutional Networks for Semi-Supervised Learning
-Yawei Luo 1,2 , Tao Guan 1 , Junqing Yu 1 , Ping Liu 2,3 , Yi Yang 2
-Huazhong University of Science & Technology
-CAI, University of Technology Sydney
-JD.COM Silicon Valley Research Center, Big Data Group
+- Luo, Yawei, et al. ["Every Node Counts: Self-Ensembling Graph Convolutional Networks for Semi-Supervised Learning."](https://arxiv.org/abs/1809.09925) (2018)
 
-- Few-shot Classification on Graphs with Structural Regularized GCNs
-Anonymous
+- Anonimous, ["Few-shot Classification on Graphs with Structural Regularized GCNs."](https://openreview.net/forum?id=r1znKiAcY7), under review.
 
 ## 2 - Classification and more: 
-- Confidence - based graph convolutional networks for semi-supervised learning
-Anonyme
-
-- A new method of region embedding for text classification
-Chao Qiao ⇤‡ , Bo Huang †‡ , Guocheng Niu ‡ , Daren Li ‡ ,
-Daxiang Dong ‡§ , Wei He ‡ , Dianhai Yu ‡§ , Hua Wu ‡§
-Baidu
+- Qiao, Chao, et al. ["A new METHOD OF REGION EMBEDDING FOR TEXT CLASSIFICATION."](https://openreview.net/forum?id=BkSDMA36Z).
 
 - Unsupervised way for text classification :
 LoMo: Unsupervisedly Learned Relational Graphs as Transferable Representations
