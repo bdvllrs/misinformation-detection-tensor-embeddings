@@ -17,11 +17,15 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 
 - Qiao, Chao, et al. ["A NEW METHOD OF REGION EMBEDDING FOR TEXT CLASSIFICATION."](https://openreview.net/forum?id=BkSDMA36Z).
 
+- Kipf, Thomas N., and Max Welling. ["Semi-supervised classification with graph convolutional networks."](https://arxiv.org/abs/1609.02907) (2016)
+
 ### Unsupervised methods for text classification
 
 - Yang, Zhilin, et al. ["GLoMo: Unsupervisedly Learned Relational Graphs as Transferable Representations."](https://arxiv.org/abs/1806.05662) (2018)
 
 - Metz, Luke, et al. ["Learning Unsupervised Learning Rules."](https://arxiv.org/abs/1804.00222) (2018)
+
+- Anonymous (under review) ["TopicGAN: Unsupervised Text Generation from Explainable Latent Topics"](https://openreview.net/forum?id=SyGjQ30qFX) (2018)
 
 ### Learning methods
 - Yu, Bing, Jingfeng Wu, and Zhanxing Zhu. ["Tangent-Normal Adversarial Regularization for Semi-supervised Learning."](https://arxiv.org/abs/1808.06088) (2018)
@@ -34,3 +38,5 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 - Lee, John Boaz, et al. ["Attention models in graphs: A survey."](https://arxiv.org/abs/1807.07984) (2018)
 
 - Qian, Feng, et al. ["Neural User Response Generator: Fake News Detection with Collective User Intelligence."](https://www.ijcai.org/proceedings/2018/533) (2018)
+
+- Oliver, Avital, et al. ["Realistic Evaluation of Deep Semi-Supervised Learning Algorithms."](https://arxiv.org/abs/1804.09170) (2018)
