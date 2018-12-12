@@ -10,7 +10,7 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 
 - Velickovic, Petar, et al. ["Graph attention networks."](https://arxiv.org/abs/1710.10903) (2018)
 
-- Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://arxiv.org/abs/1803.0373) (2018)
+- Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://openreview.net/forum?id=rJg4YGWRb) (2018)
 
 - Liao, Renjie, et al. ["Graph Partition Neural Networks for Semi-Supervised Classification."](https://arxiv.org/abs/1803.06272) (2018)
 
