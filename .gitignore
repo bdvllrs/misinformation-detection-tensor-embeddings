@@ -1,0 +1,15 @@
+.idea/
+__pycache__/
+*.pyc
+tensorly/
+sparse/
+tensorly-sparse/
+stats/
+config/
+!config/config.default.json
+Stats/
+
+.ipynb_checkpoints/
+
+pygcn/
+transformer/
