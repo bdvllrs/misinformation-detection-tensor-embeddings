@@ -4,14 +4,14 @@ This branch contains implementation of [Attention-based Graph Neural Network for
 
 Note: The code has been tested on Ubuntu 18.04, PyTorch 1.0, CUDA-10.0, Python 3.6
 
-To Install PyTorch Geometric Click [here](https://rusty1s.github.io/pytorch_geometric/build/html/notes/installation.html)
+To Install PyTorch Geometric Click [here](https://rusty1s.github.io/pytorch_geometric/build/html/notes/installation.html). Install PyTorch Geometric by building from Source and not using pip.
 
 To run the code
 * python agnn_citeseer.py
 * python agnn_cora.py
 * python agnn_pubmed.py
 
-Results
+#### Results  
 Classification Accuracy has been used as the performance metric
 
 |  Datasets      |   Val        |   Test     |

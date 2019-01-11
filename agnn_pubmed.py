@@ -22,16 +22,31 @@ class Net(torch.nn.Module):
         self.prop2 = AGNNConv(requires_grad=True)
         self.prop3 = AGNNConv(requires_grad=True)
         self.prop4 = AGNNConv(requires_grad=True)
-
         self.lin2 = torch.nn.Linear(16, dataset.num_classes)
+
+        self.prop1_mat_weight = torch.tensor(0) 
+        self.prop2_mat_weight = torch.tensor(0)
+        self.prop3_mat_weight = torch.tensor(0)
+        self.prop4_mat_weight = torch.tensor(0)
+
+        self.edge_index_with_self_lopp = torch.tensor(0)
 
     def forward(self):
         x = F.dropout(data.x,0.5,training=self.training)
         x = F.relu(self.lin1(data.x))
+
         x = self.prop1(x, data.edge_index)
+        self.edge_index_with_self_loop , self.prop1_mat_weight = self.prop1.propagation_matrix(x, data.edge_index)
+
         x = self.prop2(x, data.edge_index)
+        self.edge_index_with_self_loop , self.prop2_mat_weight = self.prop2.propagation_matrix(x, data.edge_index)
+
         x = self.prop3(x, data.edge_index)
+        self.edge_index_with_self_loop , self.prop3_mat_weight = self.prop3.propagation_matrix(x, data.edge_index)
+
         x = self.prop4(x, data.edge_index)
+        self.edge_index_with_self_loop , self.prop4_mat_weight = self.prop4.propagation_matrix(x, data.edge_index)
+
         x = F.dropout(x,0.5,training=self.training)
         x = self.lin2(x)
         return F.log_softmax(x, dim=1)
@@ -71,3 +86,31 @@ for epoch in range(1, num_epochs+1):
         test_acc = tmp_test_acc
     log = 'Epoch: {:03d}, Train: {:.4f}, Val: {:.4f}, Test: {:.4f}'
     print(log.format(epoch, train_acc, best_val_acc, test_acc))
+
+#---------------Get the Propagation Matrix for every Propagation Layer------------------------------------
+
+print('----Edge Index With Self Loop-------')
+print(model.edge_index_with_self_loop)
+
+print('----Edge Index With Self Loop shape---')
+print(model.edge_index_with_self_loop.shape)
+
+
+#----Printing the Shapes of the Propagation Matrices for corresponding Propagation Layer
+
+print('Propagation Matrix Weights Shape')
+
+print(model.prop1_mat_weight.shape)
+print(model.prop2_mat_weight.shape)
+print(model.prop3_mat_weight.shape)
+print(model.prop4_mat_weight.shape)
+
+
+#-----------Printing the Propagation Weights for 3 Propagation Layers ----------------------
+
+print('Propagation Matrix Weight')
+
+print(model.prop1_mat_weight)
+print(model.prop2_mat_weight)
+print(model.prop3_mat_weight)
+print(model.prop4_mat_weight)
