@@ -107,7 +107,7 @@ print(model.prop3_mat_weight.shape)
 print(model.prop4_mat_weight.shape)
 
 
-#-----------Printing the Propagation Weights for 3 Propagation Layers ----------------------
+#-----------Printing the Propagation Weights for 4 Propagation Layers ----------------------
 
 print('Propagation Matrix Weight')
 
