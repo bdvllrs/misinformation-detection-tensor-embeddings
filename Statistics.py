@@ -12,9 +12,9 @@ articleTensor.build_word_to_index(max_words=config['vocab_size'])
 
 nbre_total_article = config['num_real_articles'] + config['num_fake_articles']
 pourcentage_know = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95]
-pourcentage_voisin = np.array([1, 2, 4, 8, 16, 24, 48, 96])
+pourcentage_voisin = np.array([1, 2, 3, 4, 5, 6 ,7, 8, 9, 10, 15])
 ratios = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8]
-methods = [("decomposition", False), ("decomposition", True), ("GloVe", "RNN"), ("GloVe", "mean"), ]
+methods = [("decomposition", False),  ("GloVe", "mean"), (),()]
 
 for meth in enumerate(methods):
     debut_meth = time.time()
