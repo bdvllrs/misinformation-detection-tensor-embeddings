@@ -13,10 +13,9 @@ debut = time.time()
 articles = ArticlesHandler(config)
 
 C = articles.get_tensor()
-# Select most important label in each connected
-# select_labels = SelectLabelsPostprocessor(config, articles.articles)
-# articles.add_postprocessing(select_labels, "label-selection")
-# articles.postprocess()
+select_labels = SelectLabelsPostprocessor(config, articles.articles)
+articles.add_postprocessing(select_labels, "label-selection")
+articles.postprocess()
 labels = articles.articles.labels
 all_labels = articles.articles.labels_untouched
 
@@ -51,3 +50,4 @@ print("labels correct", all_labels)
 print("labels to complete", labels)
 print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
 print(100 * float(len(np.array(list(labels)) == 0.))/float(len(list(labels))), '% of labels')
+
