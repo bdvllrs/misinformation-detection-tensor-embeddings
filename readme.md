@@ -85,6 +85,9 @@ Install packages:
 - spacy
 - wmd
 
+# PyGCN
+The `pygcn` lib used in the notebook is: [tkipf pytorch implementation](https://github.com/tkipf/pygcn).
+
 
 # Credits to
 - Kipf, Thomas N and Welling, Max, _Semi-Supervised Classification with Graph Convolutional Networks_. [https://github.com/tkipf/pygcn]().
