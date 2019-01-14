@@ -10,7 +10,7 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 
 - Velickovic, Petar, et al. ["Graph attention networks."](https://arxiv.org/abs/1710.10903) (2018)
 
-- Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://arxiv.org/abs/1803.0373) (2018)
+- Thekumparampil, Kiran K., et al. [Attention-based Graph Neural Network for Semi-supervised Learning.](https://openreview.net/forum?id=rJg4YGWRb) (2018)
 
 - Liao, Renjie, et al. ["Graph Partition Neural Networks for Semi-Supervised Classification."](https://arxiv.org/abs/1803.06272) (2018)
 
@@ -57,3 +57,5 @@ Few-Shot Text Classification with Pre-Trained Word Embeddings and a Human in the
 - Shu, K., Sliva, A., Wang, S., Tang, J., & Liu, H. (2017). [Fake news detection on social media: A data mining perspective](https://www.kdd.org/exploration_files/19-1-Article2.pdf)
 
 - Conti, M., Lain, D., Lazzeretti, R., Lovisotto, G., & Quattrociocchi, W. (2017, December). [It's always April fools' day!: On the difficulty of social network misinformation classification via propagation features.](https://ieeexplore.ieee.org/abstract/document/8267653)
+
+- Ruder, S., Glover, J., Mehrabani, A., & Ghaffari, P. (2018). [360 deg Stance Detection.](https://arxiv.org/abs/1804.00982)
