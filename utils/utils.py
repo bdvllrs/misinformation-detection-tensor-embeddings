@@ -58,7 +58,7 @@ def get_rate(beliefs,labels,all_labels):
     for l in range(len(beliefs)):
         if labels[l] == 0:
             compte = compte + 1
-            if beliefs[l] ==1 and all_labels[l] == 1:
+            if beliefs[l] == 1 and all_labels[l] == 1:
                 TP += 1
             if beliefs[l] ==-1 and all_labels[l] == -1:
                 TN += 1
@@ -68,7 +68,7 @@ def get_rate(beliefs,labels,all_labels):
                 FN += 1
     return (TP/compte,TN/compte,FP/compte,FN/compte)
 
-def accuracy(TP,TN,FP,FN):
+def accuracy2(TP,TN,FP,FN):
     if TP+TN+FP+FN==0:
         return ((TP + TN) / (TP + TN + FP + FN + 1))
     else:

@@ -7,6 +7,7 @@ class Decomposition:
         self.config = config
         self.articles = articles
 
+
     def apply(self):
         """
         :return: tensor, found labels, ground truth labels
