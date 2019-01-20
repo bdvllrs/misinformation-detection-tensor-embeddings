@@ -133,10 +133,10 @@ for meth in enumerate(methods):
                         output = model(features, adj)
                         acc_test = accuracy(output[idx_test], all_labels[idx_test])
                         if acc_test.item() > max_acc:
-                            torch.save(model.state_dict(),
-                                       "../Stats/models_graph/acc/model{}_method_{}_ration_{}_unkn.h5".format(
-                                           config.method_decomposition_embedding, val, config.num_nearest_neighbours))
                             max_acc = acc_test.item()
+                            torch.save(model.state_dict(),
+                                       "../Stats/models_graph/acc/model{}_method_{}_ration_{}_unkn_{}_layers_{}_acc.h5".format(
+                                           config.method_decomposition_embedding, val, config.num_nearest_neighbours, layers, max_acc))
                             best_epoch = epoch
                             beliefs = output.max(1)[1].type_as(labels).numpy()
                             beliefs[beliefs == 1] = -1
