@@ -140,6 +140,7 @@ for meth in enumerate(methods):
                             best_epoch = epoch
                             beliefs = output.max(1)[1].type_as(labels).numpy()
                             beliefs[beliefs == 1] = -1
+                            beliefs[beliefs == 0] = 1
                             TP, TN, FP, FN = get_rate(beliefs, labels_init, all_labels_init)
                             if len(acc)!=j:
                                 acc.pop()
