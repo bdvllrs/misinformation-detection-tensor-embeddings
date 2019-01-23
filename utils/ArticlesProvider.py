@@ -2,7 +2,8 @@ import os
 import numpy as np
 import nltk
 from utils import get_fullpath, Config
-from utils.dataloaders import DataLoader, FolderLoader
+from utils.dataloaders import FolderLoader, CSVLoader, PickleLoader
+import pickle
 
 
 class ArticlesProvider:
@@ -12,7 +13,7 @@ class ArticlesProvider:
         :type config: dict
         """
         self.config = config
-        self.path = config.dataset_path
+        self.path = config.Dataset.dataset_path
         self.nb_all_articles = 0
         self.vocabulary = {}
         self.index_to_words = []
@@ -30,9 +31,21 @@ class ArticlesProvider:
         self.load_articles()
         self.compute_labels()
 
+    def save(self, path):
+        """
+        Save the data in a pickle file
+        :return:
+        """
+        with open(get_fullpath(path), "wb") as file:
+            to_picle = {"articles": self.articles, "original_articles": self.original_articles,
+                        "vocabulary": self.vocabulary, "frequency": self.frequency}
+            pickle.dump(to_picle, file)
+
     def get_dataloader(self):
-        if self.config.dataloader == "folders":
-            return FolderLoader(self.config)
+        if self.config.Dataset.type == "csv":
+            return CSVLoader(self.config)
+        elif self.config.Dataset.type == "pickle":
+            return PickleLoader(self.config)
         return FolderLoader(self.config)
 
     def load_articles(self):
@@ -66,7 +79,7 @@ class ArticlesProvider:
         return self.words_to_index['<unk>']
 
     def compute_labels(self):
-        num_unknown, proportion_true_fake_label = self.config.num_unknown_labels, self.config.proportion_true_fake_label
+        num_unknown, proportion_true_fake_label = self.config.Stats.num_unknown_labels, self.config.Stats.proportion_true_fake_label
         true_articles = [article['content'] for article in self.articles['real']]
         fake_articles = [article['content'] for article in self.articles['fake']]
         articles = true_articles + fake_articles

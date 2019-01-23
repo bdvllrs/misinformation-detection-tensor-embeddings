@@ -4,12 +4,17 @@ from utils import Config
 import time
 import numpy as np
 
-config = Config(file='config')
+config = Config('./config/')
 
-assert config.num_fake_articles + config.num_real_articles > config.num_nearest_neighbours, "Can't have more neighbours than nodes!"
+assert config.Stats.num_fake_articles + config.Stats.num_real_articles > config.Graph.num_nearest_neighbours, "Can't have more neighbours than nodes!"
 
 debut = time.time()
 handler = ArticlesHandler(config)
+
+# Save in a pickle file. To open, use the pickle dataloader.
+handler.articles.save("../Dataset/train.pkl")
+# Only recompute labels:
+# handler.articles.compute_labels()
 
 C = handler.get_tensor()
 # select_labels = SelectLabelsPostprocessor(config, handler.articles)
@@ -26,7 +31,7 @@ print(C, labels)
 # print(tensor.todense().dtype)
 fin = time.time()
 print("get tensor and decomposition done", fin - debut)
-graph = embedding_matrix_2_kNN(C, k=config.num_nearest_neighbours).toarray()
+graph = embedding_matrix_2_kNN(C, k=config.Graph.num_nearest_neighbours).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
 # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
