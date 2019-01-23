@@ -1,14 +1,14 @@
-Dataset:
+dataset:
   type: folder # in folder, csv, pickle
   dataset_path: ../Dataset/fakenewsdata1/Public Data
   dataset_name: Buzzfeed Political News Dataset
 
-Paths:
+paths:
   GloVe_adress: ../glove6B/glove.6B.100d.txt
   encoder_path: transformer/model/encoder_bpe_40000.json
   bpe_path: transformer/model/vocab_40000.bpe
 
-Embedding:
+embedding:
   method_decomposition_embedding: decomposition
   #LDA - GloVe - Transformer -
   method_embedding_glove: mean
@@ -18,18 +18,18 @@ Embedding:
   vocab_size: -1
   vocab_util_pourcentage: 1
 
-Graph:
+graph:
   num_nearest_neighbours: 5
   method_create_graph: GloVe
 
-Stats:
+stats:
   num_fake_articles: 100
   num_real_articles: 100
   num_unknown_labels: 160
   proportion_true_fake_label: 0.5
   iteration_stat: 20
 
-Learning:
+learning:
   method_learning: FaBP
   cuda: No
   hidden: 16

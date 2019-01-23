@@ -1,12 +1,13 @@
 from utils.ArticlesHandler import ArticlesHandler
-from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy2 as accuracy, precision, recall, f1_score
+from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
 from utils import Config
 import time
 import numpy as np
 
-config = Config('./config/')
+config = Config('config/')
 
-assert config.Stats.num_fake_articles + config.Stats.num_real_articles > config.Graph.num_nearest_neighbours, "Can't have more neighbours than nodes!"
+assert config.stats.num_fake_articles + config.stats.num_real_articles > \
+       config.graph.num_nearest_neighbours, "Can't have more neighbours than nodes!"
 
 debut = time.time()
 handler = ArticlesHandler(config)
@@ -23,15 +24,12 @@ C = handler.get_tensor()
 labels = handler.articles.labels
 all_labels = handler.articles.labels_untouched
 
-print(C, labels)
 C, labels, all_labels = list(
     zip(*np.random.permutation(list(zip(C, labels, all_labels)))))
-print(C, labels)
 
-# print(tensor.todense().dtype)
 fin = time.time()
 print("get tensor and decomposition done", fin - debut)
-graph = embedding_matrix_2_kNN(C, k=config.Graph.num_nearest_neighbours).toarray()
+graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
 # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}

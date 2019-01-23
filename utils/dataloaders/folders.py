@@ -6,8 +6,8 @@ import numpy as np
 
 class FolderLoader(DataLoader):
     def load(self):
-        self.load_articles(self.config.Dataset.dataset_path, self.config.Dataset.dataset_name,
-                           self.config.Stats.num_fake_articles, self.config.Stats.num_real_articles)
+        self.load_articles(self.config.dataset.dataset_path, self.config.dataset.dataset_name,
+                           self.config.stats.num_fake_articles, self.config.stats.num_real_articles)
         return self.articles, self.original_articles, self.vocabulary, self.frequency
 
     def get_content(self, filename: str, type: str = 'fake'):

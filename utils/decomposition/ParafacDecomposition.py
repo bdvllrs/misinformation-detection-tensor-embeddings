@@ -5,11 +5,11 @@ from tensorly.contrib.sparse.decomposition import tucker
 
 class ParafacDecomposition(Decomposition):
     def apply(self):
-        tensor = self.get_tensor_coocurrence(self.config.Embedding.size_word_co_occurrence_window,
-                                             self.config.Stats.num_unknown_labels,
-                                             self.config.Embedding.vocab_util_pourcentage)
+        tensor = self.get_tensor_coocurrence(self.config.embedding.size_word_co_occurrence_window,
+                                             self.config.stats.num_unknown_labels,
+                                             self.config.embedding.vocab_util_pourcentage)
 
-        return self.get_parafac_decomposition(tensor, rank=self.config.Embedding.rank_parafac_decomposition)[1][2]
+        return self.get_parafac_decomposition(tensor, rank=self.config.embedding.rank_parafac_decomposition)[1][2]
 
     def get_tensor_coocurrence(self, window, ratio, use_frequency=True):
         coordinates = []

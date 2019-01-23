@@ -13,7 +13,7 @@ class ArticlesProvider:
         :type config: dict
         """
         self.config = config
-        self.path = config.Dataset.dataset_path
+        self.path = config.dataset.dataset_path
         self.nb_all_articles = 0
         self.vocabulary = {}
         self.index_to_words = []
@@ -42,9 +42,9 @@ class ArticlesProvider:
             pickle.dump(to_picle, file)
 
     def get_dataloader(self):
-        if self.config.Dataset.type == "csv":
+        if self.config.dataset.type == "csv":
             return CSVLoader(self.config)
-        elif self.config.Dataset.type == "pickle":
+        elif self.config.dataset.type == "pickle":
             return PickleLoader(self.config)
         return FolderLoader(self.config)
 
@@ -79,7 +79,7 @@ class ArticlesProvider:
         return self.words_to_index['<unk>']
 
     def compute_labels(self):
-        num_unknown, proportion_true_fake_label = self.config.Stats.num_unknown_labels, self.config.Stats.proportion_true_fake_label
+        num_unknown, proportion_true_fake_label = self.config.stats.num_unknown_labels, self.config.stats.proportion_true_fake_label
         true_articles = [article['content'] for article in self.articles['real']]
         fake_articles = [article['content'] for article in self.articles['fake']]
         articles = true_articles + fake_articles

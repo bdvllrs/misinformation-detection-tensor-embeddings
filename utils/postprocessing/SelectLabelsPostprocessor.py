@@ -14,7 +14,7 @@ class SelectLabelsPostprocessor(PostProcessing):
         super().__init__(config, articles)
 
     def apply(self, tensor):
-        graph = embedding_matrix_2_kNN(tensor, k=self.config.num_nearest_neighbours, mode="distance").toarray()
+        graph = embedding_matrix_2_kNN(tensor, k=self.config.graph.num_nearest_neighbours, mode="distance").toarray()
         components = self.connected_components(graph)
         labels = [0 for _ in self.articles.labels]
         for k, neighbors in components.items():

@@ -4,7 +4,7 @@ import json
 
 
 def load_config():
-    config_file = os.path.abspath(os.path.join(os.curdir, 'config.json'))
+    config_file = os.path.abspath(os.path.join(os.curdir, 'config2.json'))
     with open(config_file, 'r', ) as config_file:
         config_string = config_file.read()
 
@@ -69,7 +69,7 @@ def get_rate(beliefs, labels, all_labels):
     return (TP / compte, TN / compte, FP / compte, FN / compte)
 
 
-def accuracy2(TP, TN, FP, FN):
+def accuracy(TP, TN, FP, FN):
     if TP + TN + FP + FN == 0:
         return ((TP + TN) / (TP + TN + FP + FN + 1))
     else:

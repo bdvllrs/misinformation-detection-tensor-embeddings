@@ -4,7 +4,7 @@ import csv
 
 class CSVLoader(DataLoader):
     def load(self):
-        with open(self.config.Dataset.dataset_path, "rt", encoding='utf-8') as csv_file:
+        with open(self.config.dataset.dataset_path, "rt", encoding='utf-8') as csv_file:
             reader = csv.reader(csv_file)
             data = next(reader)
             print("Import csv...")
