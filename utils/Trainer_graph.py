@@ -15,13 +15,13 @@ config = Config('config/')
 
 class TrainerGraph:
 
-    def __init__(self, C, graph, all_labels_init, labels_init):
+    def __init__(self, C_nodes, graph, all_labels_init, labels_init):
         self.loss_min = 100
         self.max_acc = 0
         self.epochs = config.learning.epochs
         self.adj = sp.coo_matrix(graph, dtype=np.float32)
         self.all_labels = encode_onehot(all_labels_init)
-        self.features = normalize(np.array(C))
+        self.features = normalize(np.array(C_nodes))
         self.adj = normalize(self.adj + sp.eye(self.adj.shape[0]))
         self.features = torch.FloatTensor(np.array(self.features))
         self.all_labels = torch.LongTensor(np.where(self.all_labels)[1])
@@ -78,6 +78,5 @@ class TrainerGraph:
                 beliefs = output.max(1)[1].type_as(self.labels).numpy()
                 beliefs[beliefs == 1] = -1
                 beliefs[beliefs == 0] = 1
-
         return beliefs
 

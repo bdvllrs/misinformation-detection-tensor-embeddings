@@ -26,7 +26,7 @@ embedding:
 
 graph:
   num_nearest_neighbours: 5
-  method_create_graph: GloVe
+  node_features: GloVe
 
 stats:
   num_fake_articles: 100
