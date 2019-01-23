@@ -9,11 +9,11 @@ class GloVeDecomposition(Decomposition):
     def __init__(self, config: Config, articles: ArticlesProvider):
         super().__init__(config, articles)
         self.RNN = torch.nn.GRUCell(100, 100)
-        self.glove = load_glove_model(config.GloVe_adress)
+        self.glove = load_glove_model(config.paths.GloVe_adress)
 
     def apply(self):
-        tensor = self.get_tensor_Glove(self.config.method_embedding_glove,
-                                       self.config.vocab_util_pourcentage)
+        tensor = self.get_tensor_Glove(self.config.embedding.method_embedding_glove,
+                                       self.config.embedding.vocab_util_pourcentage)
         return np.transpose(tensor)
 
     def get_tensor_Glove(self, method_embedding_glove, ratio):

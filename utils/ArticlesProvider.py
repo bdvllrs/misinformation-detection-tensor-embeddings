@@ -11,7 +11,7 @@ class ArticlesProvider:
         :type config: dict
         """
         self.config = config
-        self.path = config.dataset_path
+        self.path = config.paths.dataset_path
         self.nb_all_articles = 0
         self.vocabulary = {}
         self.index_to_words = []
@@ -25,9 +25,9 @@ class ArticlesProvider:
         self.article_list = []
         self.labels = []
         self.labels_untouched = []
-        self.load_articles(self.config.dataset_name, self.config.num_fake_articles, self.config.num_real_articles)
+        self.load_articles(self.config.paths.dataset_name, self.config.stats.num_fake_articles, self.config.stats.num_real_articles)
         self._build_word_to_index()
-        self.compute_labels(self.config.num_unknown_labels, self.config.proportion_true_fake_label)
+        self.compute_labels(self.config.stats.num_unknown_labels, self.config.stats.proportion_true_fake_label)
 
     def _get_content(self, filename: str, type: str = 'fake'):
         """

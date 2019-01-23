@@ -30,13 +30,13 @@ class ArticlesHandler:
             postprocessor.apply(self.last_tensor)
 
     def get_tensor(self):
-        if self.config.method_decomposition_embedding == 'parafac':
+        if self.config.embedding.method_decomposition_embedding == 'parafac':
             decomposition = ParafacDecomposition(self.config, self.articles)
-        elif self.config.method_decomposition_embedding == 'GloVe':
+        elif self.config.embedding.method_decomposition_embedding == 'GloVe':
             decomposition = GloVeDecomposition(self.config, self.articles)
-        elif self.config.method_decomposition_embedding == 'Transformer':
+        elif self.config.embedding.method_decomposition_embedding == 'Transformer':
             decomposition = TransformerDecomposition(self.config, self.articles)
-        elif self.config.method_decomposition_embedding == 'LDA':
+        elif self.config.embedding.method_decomposition_embedding == 'LDA':
             decomposition = LDADecomposiotion(self.config, self.articles)
 
         self.last_tensor = decomposition.apply()
