@@ -27,7 +27,7 @@ epochs = 1000#450
 
 
 config = Config(file='config')
-pourcentage_know = [5, 10, 20, 40, 60, 80, 90, 95]
+pourcentage_know = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 95]
 
 
 #"""
@@ -37,9 +37,9 @@ articleTensor.get_articles(config["dataset_name"], number_fake=config['num_fake_
 articleTensor.build_word_to_index(max_words=config['vocab_size'])
 
 nbre_total_article = config['num_real_articles'] + config['num_fake_articles']
-pourcentage_voisin = np.array([2])
+pourcentage_voisin = np.array([2,3,4,5])
 ratios = [0.75]
-methods = [("GloVe", "mean")]
+methods = [("Glove", "mean")]
 
 
 for meth in enumerate(methods):
@@ -60,18 +60,20 @@ for meth in enumerate(methods):
         best_epoch_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
-        if meth[1][0] == "decomposition":
-            tensor, labels, all_labels_init = articleTensor.get_tensor_coocurrence(
-                window=config['size_word_co_occurrence_window'],
-                num_unknown=0,
-                ratio=ratio,
-                use_frequency=meth[1][1])
-            _, (_, _, C) = ArticleTensor.get_parafac_decomposition(tensor, rank=config['rank_parafac_decomposition'])
-        if meth[1][0] == "GloVe":
-            tensor, labels_init, all_labels_init = articleTensor.get_tensor_Glove(meth[1][1],
-                                                                        ratio,
-                                                                        num_unknown=0)
-            C = np.transpose(tensor)
+
+        tensor, labels, all_labels_init = articleTensor.get_tensor_coocurrence(
+            window=config['size_word_co_occurrence_window'],
+            num_unknown=0,
+            ratio=ratio,
+            use_frequency=meth[1][1])
+        _, (_, _, C) = ArticleTensor.get_parafac_decomposition(tensor, rank=config['rank_parafac_decomposition'])
+
+
+        tensor, labels_init, all_labels_init = articleTensor.get_tensor_Glove(meth[1][1],
+                                                                    ratio,
+                                                                    num_unknown=0)
+        C_node = np.transpose(tensor)
+        """
         if meth[1][0] == "LDA":
             config.set("method_decomposition_embedding", "LDA")
             print("Loading dataset", config.dataset_name)
@@ -92,7 +94,7 @@ for meth in enumerate(methods):
             C = articles.get_tensor().detach().numpy()
             labels_init = articles.articles.labels
             all_labels_init = articles.articles.labels_untouched
-
+        """
         print(meth, layers)
         for i, val in enumerate(pourcentage_know):
             print("Pourcentage : ", str(val))
@@ -113,15 +115,15 @@ for meth in enumerate(methods):
                 labels_init = list(all_labels_init)
                 for k_num in range(num_unknown_labels):
                     labels_init[k_num] = 0
-                C, labels_init, all_labels_init = list(
-                    zip(*np.random.permutation(list(zip(C, labels_init, all_labels_init)))))
+                C, C_node, labels_init, all_labels_init = list(
+                    zip(*np.random.permutation(list(zip(C, C_node, labels_init, all_labels_init)))))
                 for j, val2 in enumerate(pourcentage_voisin):
                     num_nearest_neighbours = int(val2)
                     assert nbre_total_article >= num_nearest_neighbours, "Can't have more neighbours than nodes!"
                     graph = embedding_matrix_2_kNN(C, k=config.num_nearest_neighbours).toarray()
                     adj = sp.coo_matrix(graph, dtype=np.float32)
                     all_labels = encode_onehot(all_labels_init)
-                    features = normalize(np.array(C))
+                    features = normalize(np.array(C_node))
                     adj = normalize(adj + sp.eye(adj.shape[0]))
                     features = torch.FloatTensor(np.array(features))
                     all_labels = torch.LongTensor(np.where(all_labels)[1])
@@ -166,7 +168,7 @@ for meth in enumerate(methods):
                         if acc_test.item() > max_acc:
                             max_acc = acc_test.item()
                             torch.save(model.state_dict(),
-                                       "../Stats/models_graph/acc/model{}_method_{}_ration_{}_unkn_{}_layers_{}_acc.h5".format(
+                                       "../Stats/models_graph/acc/model{}_methodmix_{}_ration_{}_unkn_{}_layers_{}_acc.h5".format(
                                            config.method_decomposition_embedding, val, config.num_nearest_neighbours, layers, max_acc))
                             best_epoch = epoch
                             beliefs = output.max(1)[1].type_as(labels).numpy()
@@ -188,7 +190,7 @@ for meth in enumerate(methods):
                             times.append(time.time()-t_total)
                         #if loss_min > loss_train.item():
                         #    torch.save(model.state_dict(),
-                        #               "../Stats/models_graph/loss/model{}_method_{}_ration_{}_unkn.h5".format(
+                        #               "../Stats/models_graph/loss/model{}_methodmix_{}_ration_{}_unkn.h5".format(
                         #                   config.method_decomposition_embedding, val, config.num_nearest_neighbours))
                         #    loss_min = loss_train.item()
                     #print("End training, in ", time.time()-t_total)
@@ -212,28 +214,30 @@ for meth in enumerate(methods):
             best_epoch_score_std[i, :] = np.array(best_epochs2).std(axis=0)
             times_score_mean[i, :] = np.array(times2).mean(axis=0)
             times_score_std[i, :] = np.array(times2).std(axis=0)
+
+
         print('save_model')
-        np.save('../Stats/{}_{}_method_{}_ration_accuracy_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_mean'.format(meth[1][0], meth[1][1], layers),
                 accuracy_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_accuracy_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_std'.format(meth[1][0], meth[1][1], layers),
                 accuracy_std)
-        np.save('../Stats/{}_{}_method_{}_ration_precision_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_mean'.format(meth[1][0], meth[1][1], layers),
                 precision_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_precision_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_std'.format(meth[1][0], meth[1][1], layers),
                 precision_std)
-        np.save('../Stats/{}_{}_method_{}_ration_recall_val stats_mean'.format(meth[1][0], meth[1][1], layers), recall_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_recall_val stats_std'.format(meth[1][0], meth[1][1], layers), recall_std)
-        np.save('../Stats/{}_{}_method_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_mean'.format(meth[1][0], meth[1][1], layers), recall_mean)
+        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_std'.format(meth[1][0], meth[1][1], layers), recall_std)
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
                 f1_score_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_f1_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
                 f1_score_std)
-        np.save('../Stats/{}_{}_method_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
                 best_epoch_score_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_best_epoch_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_best_epoch_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
                 best_epoch_score_std)
-        np.save('../Stats/{}_{}_method_{}_ration_time_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
                 times_score_mean)
-        np.save('../Stats/{}_{}_method_{}_ration_time_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
                 times_score_std)
 
         print(time.time() - debut)

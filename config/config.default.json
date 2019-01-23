@@ -17,4 +17,14 @@
   "iteration_stat":20,
   "encoder_path":"transformer/model/encoder_bpe_40000.json",
   "bpe_path":"transformer/model/vocab_40000.bpe"
+  "method_learning":"FaBP",
+  "cuda": false,
+  "hidden": 16,
+  "dropout": 0.5,
+  "lr": 0.01,
+  "weight_decay": 5e-4,
+  "fastmode": false,
+  "epochs": 1000,
+  "layers": 2
+
 }

@@ -5,8 +5,8 @@ tensorly/
 sparse/
 tensorly-sparse/
 stats/
-config/
-!config/config.default.json
+config/*
+!config/default.yaml
 Stats/
 pyagnn/data/*
 
