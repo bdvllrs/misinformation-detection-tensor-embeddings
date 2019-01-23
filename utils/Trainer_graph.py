@@ -69,7 +69,7 @@ class TrainerGraph:
             self.model.eval()
             output = self.model(self.features, self.adj)
             acc_test = accuracy(output[self.idx_test], self.all_labels[self.idx_test])
-            if acc_test.item() > self.max_acc:
+            if acc_test.item() >= self.max_acc:
                 self.max_acc = acc_test.item()
                 if config.learning.save_model:
                     torch.save(self.model.state_dict(),

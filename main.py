@@ -3,7 +3,9 @@ from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, 
 from utils import Config
 import time
 import numpy as np
-from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
+#from utils.postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
+
+from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
 
@@ -34,7 +36,7 @@ graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray
 fin3 = time.time()
 print("KNN done", fin3 - fin)
 
-if config.learning.method_learning == "FaPB":
+if config.learning.method_learning == "FaBP":
     # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
     beliefs = solve(graph, labels)
     fin4 = time.time()
