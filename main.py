@@ -4,7 +4,6 @@ from utils import Config
 import time
 import numpy as np
 #from utils.postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
-
 from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
