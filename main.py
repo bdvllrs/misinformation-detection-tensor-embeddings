@@ -3,7 +3,7 @@ from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, 
 from utils import Config
 import time
 import numpy as np
-from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
+from utils.postprocessing import SelectLabelsPostprocessor
 
 config = Config('config/')
 
