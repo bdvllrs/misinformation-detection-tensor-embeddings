@@ -4,6 +4,7 @@ from utils import Config
 import time
 import numpy as np
 from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
+from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
 
@@ -28,13 +29,19 @@ print("get tensor and decomposition done", fin - debut)
 graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
-# classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
-beliefs = solve(graph, labels)
-fin4 = time.time()
-print("FaBP done", fin4 - fin3)
+
+if config.learning.method_learning == "FaPB":
+    # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
+    beliefs = solve(graph, labels)
+    fin4 = time.time()
+    print("FaBP done", fin4 - fin3)
+else:
+    trainer = TrainerGraph(C, graph, all_labels, labels)
+    beliefs = trainer.train()
+    fin4 = time.time()
+    print("Learning done", fin4 - fin3)
 
 # Compute hit rate
-print("return float belief", beliefs)
 beliefs[beliefs > 0] = 1
 beliefs[beliefs < 0] = -1
 

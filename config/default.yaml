@@ -1,12 +1,12 @@
-Paths:
+paths:
   dataset_path: ../Dataset/fakenewsdata1/Public Data
   dataset_name: Buzzfeed Political News Dataset
   GloVe_adress: ../glove6B/glove.6B.100d.txt
   encoder_path: transformer/model/encoder_bpe_40000.json
   bpe_path: transformer/model/vocab_40000.bpe
 
-Embedding:
-  method_decomposition_embedding: decomposition
+embedding:
+  method_decomposition_embedding: GloVe
   #LDA - GloVe - Transformer -
   method_embedding_glove: mean
   rank_parafac_decomposition: 10
@@ -15,19 +15,20 @@ Embedding:
   vocab_size: -1
   vocab_util_pourcentage: 1
 
-Graph:
+graph:
   num_nearest_neighbours: 5
   method_create_graph: GloVe
 
-Stats:
+stats:
   num_fake_articles: 100
   num_real_articles: 100
   num_unknown_labels: 160
   proportion_true_fake_label: 0.5
   iteration_stat: 20
 
-Learning:
-  method_learning: FaBP
+
+learning:
+  method_learning: GCN #GCN, or AGNN
   cuda: No
   hidden: 16
   dropout: 0.5
@@ -36,3 +37,4 @@ Learning:
   fastmode: No
   epochs: 1000
   layers: 2
+  save_model: No
