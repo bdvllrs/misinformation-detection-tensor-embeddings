@@ -58,5 +58,4 @@ print("return int belief", beliefs)
 print("labels correct", all_labels)
 print("labels to complete", labels)
 print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
-print(100 * float(len(np.array(list(labels)) == 0.))/float(len(list(labels))), '% of labels')
 
