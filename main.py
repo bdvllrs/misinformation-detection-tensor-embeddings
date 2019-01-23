@@ -3,6 +3,7 @@ from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, 
 from utils import Config
 import time
 import numpy as np
+from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
 
 config = Config('config/')
 
@@ -32,13 +33,19 @@ print("get tensor and decomposition done", fin - debut)
 graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
-# classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
-beliefs = solve(graph, labels)
-fin4 = time.time()
-print("FaBP done", fin4 - fin3)
+
+if config.learning.method_learning == "FaPB":
+    # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
+    beliefs = solve(graph, labels)
+    fin4 = time.time()
+    print("FaBP done", fin4 - fin3)
+else:
+    trainer = TrainerGraph(C, graph, all_labels, labels)
+    beliefs = trainer.train()
+    fin4 = time.time()
+    print("Learning done", fin4 - fin3)
 
 # Compute hit rate
-print("return float belief", beliefs)
 beliefs[beliefs > 0] = 1
 beliefs[beliefs < 0] = -1
 
@@ -51,5 +58,4 @@ print("return int belief", beliefs)
 print("labels correct", all_labels)
 print("labels to complete", labels)
 print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
-print(100 * float(len(np.array(list(labels)) == 0.))/float(len(list(labels))), '% of labels')
 

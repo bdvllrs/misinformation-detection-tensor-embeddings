@@ -1,15 +1,6 @@
-dataset:
-  type: folder # in folder, csv, pickle
+paths:
   dataset_path: ../Dataset/fakenewsdata1/Public Data
   dataset_name: Buzzfeed Political News Dataset
-  # If csv dataloader, set the column of info for each row
-  csv:
-    uid: 0 # index 0
-    title: 1
-    content: 3
-    label: 4
-
-paths:
   GloVe_adress: ../glove6B/glove.6B.100d.txt
   encoder_path: transformer/model/encoder_bpe_40000.json
   bpe_path: transformer/model/vocab_40000.bpe
@@ -35,8 +26,9 @@ stats:
   proportion_true_fake_label: 0.5
   iteration_stat: 20
 
+
 learning:
-  method_learning: FaBP
+  method_learning: GCN #GCN, or AGNN
   cuda: No
   hidden: 16
   dropout: 0.5
@@ -45,3 +37,4 @@ learning:
   fastmode: No
   epochs: 1000
   layers: 2
+  save_model: No
