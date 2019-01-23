@@ -1,13 +1,9 @@
-from utils import embedding_matrix_2_kNN, get_rate, precision, recall, f1_score, accuracy
-from utils.ArticleTensor import ArticleTensor
-from utils.ArticlesHandler import ArticlesHandler
+from utils import  accuracy
 from utils import Config
-import time
 import numpy as np
-from pygcn.utils import accuracy, load_from_features, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
+from pygcn.utils import accuracy, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
 from pyagnn.agnn.model import AGNN
 from pygcn.models import GCN
-import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import scipy.sparse as sp
@@ -76,8 +72,8 @@ class TrainerGraph:
             if acc_test.item() > self.max_acc:
                 self.max_acc = acc_test.item()
                 if config.learning.save_model:
-                    #torch.save(self.model.state_dict(),
-                    #           config.paths.models)
+                    torch.save(self.model.state_dict(),
+                               config.paths.models)
                 self.best_epoch = epoch
                 beliefs = output.max(1)[1].type_as(self.labels).numpy()
                 beliefs[beliefs == 1] = -1
