@@ -4,7 +4,6 @@ from utils import Config
 import time
 import numpy as np
 from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
-from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
 
@@ -12,14 +11,19 @@ assert config.stats.num_fake_articles + config.stats.num_real_articles > \
        config.graph.num_nearest_neighbours, "Can't have more neighbours than nodes!"
 
 debut = time.time()
-articles = ArticlesHandler(config)
+handler = ArticlesHandler(config)
 
-C = articles.get_tensor()
-select_labels = SelectLabelsPostprocessor(config, articles.articles)
-articles.add_postprocessing(select_labels, "label-selection")
-articles.postprocess()
-labels = articles.articles.labels
-all_labels = articles.articles.labels_untouched
+# Save in a pickle file. To open, use the pickle dataloader.
+handler.articles.save("../Dataset/train.pkl")
+# Only recompute labels:
+# handler.articles.compute_labels()
+
+C = handler.get_tensor()
+# select_labels = SelectLabelsPostprocessor(config, handler.articles)
+# handler.add_postprocessing(select_labels, "label-selection")
+# handler.postprocess()
+labels = handler.articles.labels
+all_labels = handler.articles.labels_untouched
 
 C, labels, all_labels = list(
     zip(*np.random.permutation(list(zip(C, labels, all_labels)))))

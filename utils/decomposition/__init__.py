@@ -1,0 +1,4 @@
+from utils.decomposition.Decomposition import Decomposition
+from utils.decomposition.GloVeDecomposition import GloVeDecomposition
+from utils.decomposition.ParafacDecomposition import ParafacDecomposition
+from utils.decomposition.LDA_idf import LDADecomposition

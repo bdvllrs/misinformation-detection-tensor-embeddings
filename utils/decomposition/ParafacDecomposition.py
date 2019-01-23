@@ -1,4 +1,4 @@
-from decomposition.Decomposition import Decomposition
+from utils.decomposition import Decomposition
 import sparse
 from tensorly.contrib.sparse.decomposition import tucker
 

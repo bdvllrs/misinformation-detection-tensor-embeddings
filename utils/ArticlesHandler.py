@@ -1,10 +1,10 @@
-from decomposition.LDA_idf import LDADecomposiotion
-from decomposition.ParafacDecomposition import ParafacDecomposition
-from decomposition.GloVeDecomposition import GloVeDecomposition
-from decomposition.TransformerDecomposition import TransformerDecomposition
+from utils.decomposition import LDADecomposition
+from utils.decomposition import ParafacDecomposition
+from utils.decomposition import GloVeDecomposition
+from utils.decomposition import TransformerDecomposition
 from utils.ArticlesProvider import ArticlesProvider
 from utils import Config
-from postprocessing.PostProcessing import PostProcessing
+from utils.postprocessing import PostProcessing
 
 
 class ArticlesHandler:

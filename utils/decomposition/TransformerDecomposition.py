@@ -1,7 +1,6 @@
 from utils.ArticlesProvider import ArticlesProvider
-from decomposition.Decomposition import Decomposition
+from utils.decomposition import Decomposition
 from utils import Config
-import numpy as np
 import torch
 import spacy
 import ftfy

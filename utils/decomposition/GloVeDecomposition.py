@@ -1,6 +1,6 @@
 from utils import Config, load_glove_model
 from utils.ArticlesProvider import ArticlesProvider
-from decomposition.Decomposition import Decomposition
+from utils.decomposition import Decomposition
 import numpy as np
 import torch
 
