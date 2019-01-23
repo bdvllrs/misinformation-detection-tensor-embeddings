@@ -2,6 +2,12 @@ dataset:
   type: folder # in folder, csv, pickle
   dataset_path: ../Dataset/fakenewsdata1/Public Data
   dataset_name: Buzzfeed Political News Dataset
+  # If csv dataloader, set the column of info for each row
+  csv:
+    uid: 0 # index 0
+    title: 1
+    content: 3
+    label: 4
 
 paths:
   GloVe_adress: ../glove6B/glove.6B.100d.txt

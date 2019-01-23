@@ -14,7 +14,11 @@ class CSVLoader(DataLoader):
                     data = next(reader)
                 except csv.Error:
                     break
-                uid, title, author, text, label = data
+                index_uid = self.config.dataset.csv.uid
+                index_title = self.config.dataset.csv.title
+                index_content = self.config.dataset.csv.content
+                index_label = self.config.dataset.csv.label
+                uid, title, text, label = data[index_uid], data[index_title], data[index_content], data[index_label]
                 article_type = "fake" if int(label) else "real"
                 self.articles[article_type].append({
                     'content': self._get_content(uid, text, type=article_type),
