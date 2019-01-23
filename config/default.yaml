@@ -15,8 +15,8 @@ paths:
   bpe_path: transformer/model/vocab_40000.bpe
 
 embedding:
-  method_decomposition_embedding: decomposition
-  #LDA - GloVe - Transformer -
+  # Parafac - LDA - GloVe - Transformer -
+  method_decomposition_embedding: parafac
   method_embedding_glove: mean
   rank_parafac_decomposition: 10
   size_word_co_occurrence_window: 5

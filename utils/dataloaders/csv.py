@@ -9,11 +9,13 @@ class CSVLoader(DataLoader):
             data = next(reader)
             print("Import csv...")
             k = 0
-            while data:
+            done = False
+            while data and not done:
+                print(k)
                 try:
                     data = next(reader)
                 except csv.Error:
-                    break
+                    done = True
                 index_uid = self.config.dataset.csv.uid
                 index_title = self.config.dataset.csv.title
                 index_content = self.config.dataset.csv.content
@@ -27,4 +29,3 @@ class CSVLoader(DataLoader):
                 k += 1
             print("Imported.")
         return self.articles, self.original_articles, self.vocabulary, self.frequency
-

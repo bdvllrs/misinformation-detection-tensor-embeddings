@@ -27,6 +27,7 @@ class ArticlesProvider:
         self.article_list = []
         self.labels = []
         self.labels_untouched = []
+        self.nb_all_articles = 0
         self.dataloader = self.get_dataloader()
         self.load_articles()
         self.compute_labels()
@@ -51,6 +52,7 @@ class ArticlesProvider:
     def load_articles(self):
         self.articles, self.original_articles, self.vocabulary, self.frequency = self.dataloader.load()
         self._build_word_to_index()
+        self.nb_all_articles = len(self.articles['fake']) + len(self.articles['real'])
 
     def _build_word_to_index(self, in_freq_order=True, max_words=-1):
         """
