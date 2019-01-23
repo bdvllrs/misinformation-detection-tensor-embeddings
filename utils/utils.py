@@ -48,7 +48,7 @@ def FaBP(D):
     return max(h1, h2)
 
 
-def get_rate(beliefs,labels,all_labels):
+def get_rate(beliefs, labels, all_labels):
     # Compute hit rate
     TP = 0.
     TN = 0
@@ -60,37 +60,41 @@ def get_rate(beliefs,labels,all_labels):
             compte = compte + 1
             if beliefs[l] == 1 and all_labels[l] == 1:
                 TP += 1
-            if beliefs[l] ==-1 and all_labels[l] == -1:
+            if beliefs[l] == -1 and all_labels[l] == -1:
                 TN += 1
-            if beliefs[l] ==1 and all_labels[l] ==-1:
+            if beliefs[l] == 1 and all_labels[l] == -1:
                 FP += 1
-            if beliefs[l] ==-1 and all_labels[l] == 1:
+            if beliefs[l] == -1 and all_labels[l] == 1:
                 FN += 1
-    return (TP/compte,TN/compte,FP/compte,FN/compte)
+    return (TP / compte, TN / compte, FP / compte, FN / compte)
 
-def accuracy2(TP,TN,FP,FN):
-    if TP+TN+FP+FN==0:
+
+def accuracy2(TP, TN, FP, FN):
+    if TP + TN + FP + FN == 0:
         return ((TP + TN) / (TP + TN + FP + FN + 1))
     else:
-        return((TP+TN)/(TP+TN+FP+FN))
+        return ((TP + TN) / (TP + TN + FP + FN))
 
-def precision(TP,FP):
-    if TP + FP ==0:
-        return ((TP ) / (TP + FP+1))
+
+def precision(TP, FP):
+    if TP + FP == 0:
+        return ((TP) / (TP + FP + 1))
     else:
-        return ((TP ) / (TP + FP))
+        return ((TP) / (TP + FP))
 
-def recall(TP,FN):
+
+def recall(TP, FN):
     if TP + FN == 0:
-        return ((TP) / (TP + FN+1))
+        return ((TP) / (TP + FN + 1))
     else:
-        return((TP)/(TP + FN))
+        return ((TP) / (TP + FN))
 
-def f1_score(prec,rec):
-    if (prec + rec)==0:
-        return (2 * (prec * rec) / (prec + rec+1))
+
+def f1_score(prec, rec):
+    if (prec + rec) == 0:
+        return (2 * (prec * rec) / (prec + rec + 1))
     else:
-        return(2*(prec*rec)/(prec+rec))
+        return (2 * (prec * rec) / (prec + rec))
 
 
 def get_fullpath(*path):

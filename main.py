@@ -1,23 +1,22 @@
 from utils.ArticlesHandler import ArticlesHandler
-from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
+from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy2 as accuracy, precision, recall, f1_score
 from utils import Config
 import time
 import numpy as np
-from postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
 
 config = Config(file='config')
 
 assert config.num_fake_articles + config.num_real_articles > config.num_nearest_neighbours, "Can't have more neighbours than nodes!"
 
 debut = time.time()
-articles = ArticlesHandler(config)
+handler = ArticlesHandler(config)
 
-C = articles.get_tensor()
-select_labels = SelectLabelsPostprocessor(config, articles.articles)
-articles.add_postprocessing(select_labels, "label-selection")
-articles.postprocess()
-labels = articles.articles.labels
-all_labels = articles.articles.labels_untouched
+C = handler.get_tensor()
+# select_labels = SelectLabelsPostprocessor(config, handler.articles)
+# handler.add_postprocessing(select_labels, "label-selection")
+# handler.postprocess()
+labels = handler.articles.labels
+all_labels = handler.articles.labels_untouched
 
 print(C, labels)
 C, labels, all_labels = list(

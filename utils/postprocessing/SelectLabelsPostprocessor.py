@@ -1,5 +1,5 @@
 import numpy as np
-from postprocessing.PostProcessing import PostProcessing
+from utils.postprocessing import PostProcessing
 from utils import embedding_matrix_2_kNN
 from utils.Config import Config
 from utils.ArticlesProvider import ArticlesProvider

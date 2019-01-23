@@ -1,10 +1,10 @@
 from utils import Config
 from utils.ArticlesProvider import ArticlesProvider
-from decomposition.Decomposition import Decomposition
+from utils.decomposition import Decomposition
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 
-class LDADecomposiotion(Decomposition):
+class LDADecomposition(Decomposition):
     def __init__(self, config: Config, articles: ArticlesProvider):
         super().__init__(config, articles)
         self.lda = LatentDirichletAllocation(n_components=config["rank_parafac_decomposition"], max_iter=5,
