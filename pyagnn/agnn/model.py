@@ -3,7 +3,9 @@ import torch.nn as nn
 from torch.nn.parameter import Parameter
 from torch.autograd import Variable
 import torch.nn.functional as F
+from utils import Config
 
+config = Config('config/')
 
 class GraphAttentionLayer(nn.Module):
 
@@ -26,9 +28,9 @@ class GraphAttentionLayer(nn.Module):
 
         # add a minor constant (1e-7) to denominator to prevent division by
         # zero error
-        if torch.cuda.is_available():
+        if config.learning.cuda:
             cos = self.beta.cuda() * \
-                  torch.div(torch.mm(x, x.t()), torch.mm(norm2, norm2.t()) + 1e-7)
+                  torch.div(torch.mm(x, x.t()), torch.mm(norm2, norm2.t()) + 1e-7).cuda()
         else:
             cos = self.beta * \
                   torch.div(torch.mm(x, x.t()), torch.mm(norm2, norm2.t()) + 1e-7)
@@ -36,13 +38,20 @@ class GraphAttentionLayer(nn.Module):
         # neighborhood masking (inspired by this repo:
         # https://github.com/danielegrattarola/keras-gat)
         mask = (torch.ones(adj.shape) - adj) * -1e9
-        masked = cos + mask
+        if config.learning.cuda:
+            masked = cos + mask.cuda()
+        else:
+            masked = cos + mask
 
         # propagation matrix
         P = F.softmax(masked, dim=1)
 
+
         # attention-guided propagation
-        output = torch.mm(P, x)
+        if config.learning.cuda:
+            output = torch.mm(P.cuda(), x.cuda())
+        else:
+            output = torch.mm(P, x)
         return output
 
     def __repr__(self):
@@ -60,7 +69,11 @@ class LinearLayer(nn.Module):
 
     def forward(self, input):
         # no bias
-        return torch.mm(input, self.weight)
+        if config.learning.cuda:
+            return torch.mm(input.cuda(), self.weight.cuda())
+        else:
+            return torch.mm(input, self.weight)
+
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' \
@@ -84,7 +97,7 @@ class AGNN(nn.Module):
         # and beta is fixed at 0
         self.attentionlayers.append(GraphAttentionLayer(requires_grad=False).cuda())
         for i in range(1, self.layers):
-            if torch.cuda.is_available():
+            if config.learning.cuda:
                 self.attentionlayers.append(GraphAttentionLayer().cuda())
             else:
                 self.attentionlayers.append(GraphAttentionLayer())
