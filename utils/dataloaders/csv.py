@@ -22,11 +22,12 @@ class CSVLoader(DataLoader):
                 index_content = self.config.dataset.csv.content
                 index_label = self.config.dataset.csv.label
                 uid, title, text, label = data[index_uid], data[index_title], data[index_content], data[index_label]
-                article_type = "fake" if int(label) else "real"
-                content = self._get_content(uid, text, type=article_type)
+                content = self._get_content(uid, text, label=label)
                 if 10 < len(content) < 2000:
-                    title = self._get_content(uid + "_title", title, type=article_type)
-                    self.articles[article_type].append({
+                    if label not in self.articles.keys():
+                        self.articles[label] = []
+                    title = self._get_content(uid + "_title", title, label=label)
+                    self.articles[label].append({
                         'content': content,
                         'title': title
                     })

@@ -1,4 +1,4 @@
-from utils import  accuracy
+from utils import accuracy
 from utils import Config
 import numpy as np
 from pygcn.utils import accuracy, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
@@ -9,10 +9,9 @@ import torch.optim as optim
 import scipy.sparse as sp
 import torch
 
-
-
 config = Config('config/')
 device = torch.device("cuda" if config.learning.cuda else "cpu")
+
 
 class TrainerGraph:
 
@@ -32,29 +31,28 @@ class TrainerGraph:
         self.labels = torch.LongTensor(np.where(self.labels)[1])
         self.idx_train_all = np.where(self.labels)[0]
 
-
-        self.idx_train = torch.LongTensor(self.idx_train_all[:int((1 - config.learning.ratio_val)*len(self.idx_train_all))])
-        self.idx_val = torch.LongTensor(self.idx_train_all[int((1 - config.learning.ratio_val)*len(self.idx_train_all)):])
-
+        self.idx_train = torch.LongTensor(
+            self.idx_train_all[:int((1 - config.learning.ratio_val) * len(self.idx_train_all))])
+        self.idx_val = torch.LongTensor(
+            self.idx_train_all[int((1 - config.learning.ratio_val) * len(self.idx_train_all)):])
 
         self.idx_test = torch.LongTensor(self.idx_test)
         if config.learning.method_learning == "GCN":
             self.model = GCN(nfeat=self.features.shape[1],
-                        nhid=config.learning.hidden,
-                        nclass=self.labels.max().item() + 1,
-                        dropout=config.learning.dropout)
+                             nhid=config.learning.hidden,
+                             nclass=self.labels.max().item() + 1,
+                             dropout=config.learning.dropout)
         elif config.learning.method_learning == "AGNN":
             self.model = AGNN(nfeat=self.features.shape[1],
-                         nhid=config.learning.hidden,
-                         nclass=self.labels.max().item() + 1,
-                         nlayers=config.learning.layers,
-                         dropout_rate=0.5)
-
+                              nhid=config.learning.hidden,
+                              nclass=self.labels.max().item() + 1,
+                              nlayers=config.learning.layers,
+                              dropout_rate=0.5)
 
         if config.learning.cuda:
             self.model.cuda()
             self.features = self.features.cuda()
-            #self.adj = self.adj.cuda()
+            # self.adj = self.adj.cuda()
             self.all_labels = self.all_labels.cuda()
             self.idx_train = self.idx_train.cuda()
             self.idx_test = self.idx_test.cuda()
@@ -70,7 +68,7 @@ class TrainerGraph:
             optimizer.zero_grad()
             output = self.model(self.features, self.adj)
             loss_train = F.nll_loss(output[self.idx_train], self.all_labels[self.idx_train])
-            #acc_train = accuracy(output[self.idx_train], self.all_labels[self.idx_train])
+            # acc_train = accuracy(output[self.idx_train], self.all_labels[self.idx_train])
             loss_train.backward()
             optimizer.step()
             self.model.eval()
@@ -86,4 +84,3 @@ class TrainerGraph:
                 beliefs[beliefs == 1] = -1
                 beliefs[beliefs == 0] = 1
         return beliefs
-

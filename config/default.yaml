@@ -29,15 +29,12 @@ graph:
   node_features: GloVe
 
 stats:
-  num_fake_articles: 100
-  num_real_articles: 100
-  num_unknown_labels: 160
-  proportion_true_fake_label: 0.5
+  ratio_labeled: 0.02
   iteration_stat: 20
 
 
 learning:
-  method_learning: GCN #GCN, or AGNN
+  method_learning: GCN # FaBP, GCN, or AGNN
   cuda: No
   hidden: 16
   dropout: 0.5

@@ -5,11 +5,8 @@ import nltk
 class DataLoader:
     def __init__(self, config: Config):
         self.config = config
-        self.articles = {
-            'fake': [],
-            'real': []
-        }
-        self.original_articles = {'fake': [], 'real': []}
+        self.articles = {}
+        self.original_articles = {}
         self.vocabulary = {}
         self.frequency = {}  # dict : keys Words et values : list of files where the words are from
 
@@ -20,14 +17,16 @@ class DataLoader:
         """
         raise NotImplementedError
 
-    def _get_content(self, uid, content: str, type: str = 'fake'):
+    def _get_content(self, uid, content: str, label):
         """
         Get the content of a given file
         :param filename: path to file to open
         """
         ps = nltk.PorterStemmer()
         content = content.replace('\n', '').replace('\r', '').replace("\\'", "'")
-        self.original_articles[type].append(content)
+        if label not in self.original_articles.keys():
+            self.original_articles[label] = []
+        self.original_articles[label].append(content)
         content_words_tokenized = nltk.word_tokenize(content.lower())
         # Add words in the vocab
 
