@@ -7,7 +7,7 @@ import numpy as np
 class FolderLoader(DataLoader):
     def load(self):
         self.load_articles(self.config.dataset.dataset_path, self.config.dataset.dataset_name,
-                           self.config.stats.num_fake_articles, self.config.stats.num_real_articles)
+                           100, 100)
         return self.articles, self.original_articles, self.vocabulary, self.frequency
 
     def get_content(self, filename: str, type: str = 'fake'):
@@ -15,6 +15,8 @@ class FolderLoader(DataLoader):
             return self._get_content(filename, document.read(), type)
 
     def load_articles(self, path, articles_directory, number_fake, number_real):
+        self.articles['fake'] = []
+        self.articles['real'] = []
         files_path_fake = get_fullpath(path, articles_directory, 'Fake')
         files_path_fake_titles = get_fullpath(path, articles_directory, 'Fake_titles')
         files_path_real = get_fullpath(path, articles_directory, 'Real')

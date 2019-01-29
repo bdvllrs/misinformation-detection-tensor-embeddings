@@ -14,9 +14,10 @@ def load_config():
 def solve(graph, labels):
     """
     :param graph: le graphe des plus proches voisins
-    :param labels: labels incomplets {-1,0,1}
-    :return: labels complets {-1,1}
+    :param labels: labels incomplets {0,1, 2}
+    :return: labels complets {1, 2}
     """
+    labels[labels == 2] = -1  # set to {-1, 0, 1}
     identity = np.eye(len(graph))
     d_vec = np.sum(graph, 1)
     D = np.diag(d_vec)
@@ -24,7 +25,10 @@ def solve(graph, labels):
     c = (2 * homophily) / (1 - 4 * homophily * homophily)
     a = 2 * homophily * c
     M = identity + a * D - c * graph
-    return np.linalg.solve(M, labels)
+    predicted_labels = np.linalg.solve(M, labels)
+    predicted_labels[predicted_labels >= 0] = 1  # reset to {1, 2} instead of {-1, 1}
+    predicted_labels[predicted_labels < 0] = 2  # reset to {1, 2} instead of {-1, 1}
+    return predicted_labels
 
 
 def FaBP(D):
@@ -50,7 +54,7 @@ def FaBP(D):
 
 def get_rate(beliefs, labels, all_labels):
     # Compute hit rate
-    TP = 0.
+    TP = 0
     TN = 0
     FP = 0
     FN = 0

@@ -1,6 +1,4 @@
-import os
 import numpy as np
-import nltk
 from utils import get_fullpath, Config
 from utils.dataloaders import FolderLoader, CSVLoader, PickleLoader
 import pickle
@@ -19,11 +17,8 @@ class ArticlesProvider:
         self.index_to_words = []
         self.frequency = {}  # dict : keys Words et values : list of files where the words are from
         self.words_to_index = {}
-        self.articles = {
-            'fake': [],
-            'real': []
-        }
-        self.original_articles = {'fake': [], 'real': []}
+        self.articles = {}
+        self.original_articles = {}
         self.article_list = []
         self.labels = []
         self.labels_untouched = []
@@ -52,7 +47,7 @@ class ArticlesProvider:
     def load_articles(self):
         self.articles, self.original_articles, self.vocabulary, self.frequency = self.dataloader.load()
         self._build_word_to_index()
-        self.nb_all_articles = len(self.articles['fake']) + len(self.articles['real'])
+        self.nb_all_articles = sum([len(self.articles[label]) for label in self.articles.keys()])
 
     def _build_word_to_index(self, in_freq_order=True, max_words=-1):
         """
@@ -81,31 +76,24 @@ class ArticlesProvider:
         return self.words_to_index['<unk>']
 
     def compute_labels(self):
-        num_unknown, proportion_true_fake_label = self.config.stats.num_unknown_labels, self.config.stats.proportion_true_fake_label
-        true_articles = [article['content'] for article in self.articles['real']]
-        fake_articles = [article['content'] for article in self.articles['fake']]
-        articles = true_articles + fake_articles
+        ratio_labeled = self.config.stats.ratio_labeled
+        articles = []
         labels = []
-        for k in range(len(articles)):
-            if k < len(self.articles['fake']):
-                labels.append(-1)
-            else:
-                labels.append(1)
+        for k, (label, a) in enumerate(self.articles.items()):
+            a = list(map(lambda x: x['content'], a))
+            articles.extend(a)
+            labels.extend([k + 1] * len(a))
         # Shuffle the labels and articles
         articles, labels = list(zip(*np.random.permutation(list(zip(articles, labels)))))
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
-        num_known = len(labels) - num_unknown
-        number_true_unknown = len(true_articles) - int(proportion_true_fake_label * num_known)
-        number_false_unknown = len(fake_articles) - (num_known - int(proportion_true_fake_label * num_known))
+        num_known = int(len(labels) * ratio_labeled / len(self.articles.keys()))
+        num_per_class = [num_known] * len(self.articles.keys())
         for k in range(len(labels)):
-            if (number_true_unknown > 0) & (labels[k] == 1):
+            if num_per_class[labels[k] - 1] > 0:
+                num_per_class[labels[k] - 1] -= 1
                 labels[k] = 0
-                number_true_unknown -= 1
-            if (labels[k] == -1) & (number_false_unknown > 0):
-                labels[k] = 0
-                number_false_unknown -= 1
         self.labels = labels
         self.labels_untouched = labels_untouched
         self.article_list = articles
