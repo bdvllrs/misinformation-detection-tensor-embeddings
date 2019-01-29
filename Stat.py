@@ -1,9 +1,8 @@
-from utils import embedding_matrix_2_kNN, get_rate, precision, recall, f1_score, accuracy2
+from utils import embedding_matrix_2_kNN, get_rate, precision, recall, f1_score, accuracy2, solve
 from utils.ArticlesHandler import ArticlesHandler
 from utils import Config
 import time
 import numpy as np
-from pygcn.utils import accuracy
 
 from utils.Trainer_graph import TrainerGraph
 
@@ -46,26 +45,19 @@ for meth in enumerate(methods):
         best_epoch_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
-
-
         C = handler.get_tensor()
         # select_labels = SelectLabelsPostprocessor(config, handler.articles)
         # handler.add_postprocessing(select_labels, "label-selection")
         # handler.postprocess()
         labels = handler.articles.labels
         all_labels = handler.articles.labels_untouched
-
         if meth == meth2:
             C_nodes = C.copy()
         else:
             config.set("method_decomposition_embedding", meth2)
             C_nodes = handler.get_tensor()
-
         C, C_nodes, labels, all_labels = list(
             zip(*np.random.permutation(list(zip(C, C_nodes, labels, all_labels)))))
-
-
-
         for i, val in enumerate(pourcentage_know):
             print("Pourcentage : ", str(val))
             num_unknown_labels = nbre_total_article - int(val / 100 * nbre_total_article)
@@ -92,11 +84,19 @@ for meth in enumerate(methods):
                     num_nearest_neighbours = int(val2)
                     assert nbre_total_article >= num_nearest_neighbours, "Can't have more neighbours than nodes!"
                     graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
-                    trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
-                    beliefs = trainer.train()
-                    # Compute hit rate
-                    beliefs[beliefs > 0] = 1
-                    beliefs[beliefs < 0] = -1
+                    if config.learning.method_learning == "FaBP":
+                        # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
+                        l = np.array(labels)
+                        beliefs = solve(graph, l)
+                        fin4 = time.time()
+                    else:
+                        trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
+                        beliefs = trainer.train()
+                        fin4 = time.time()
+                        # Compute hit rate
+                        # TODO: changer pour le multiclasse...
+                        beliefs[beliefs > 0] = 1
+                        beliefs[beliefs < 0] = -1
                     TP, TN, FP, FN = get_rate(beliefs, labels, all_labels)
                     acc = accuracy2(TP, TN, FP, FN)
                     prec = precision(TP, FP)
@@ -143,7 +143,6 @@ for meth in enumerate(methods):
                 times_score_mean)
         np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_std'.format(meth, meth2, ratio),
                 times_score_std)
-
         print(time.time() - debut)
     print('temps method : ', meth)
     print(time.time() - debut_meth)
