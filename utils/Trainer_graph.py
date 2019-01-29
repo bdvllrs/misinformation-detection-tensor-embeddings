@@ -76,6 +76,7 @@ class TrainerGraph:
             if acc_test.item() > self.max_acc:
                 self.max_acc = acc_test.item()
                 if config.learning.save_model:
+                    pass
                     #torch.save(self.model.state_dict(),
                     #           config.paths.models)
                 self.best_epoch = epoch

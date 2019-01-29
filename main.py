@@ -1,5 +1,6 @@
 from utils.ArticlesHandler import ArticlesHandler
 from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
+from utils.Trainer_graph import TrainerGraph
 from utils import Config
 import time
 import numpy as np
@@ -14,7 +15,7 @@ debut = time.time()
 handler = ArticlesHandler(config)
 
 # Save in a pickle file. To open, use the pickle dataloader.
-handler.articles.save("../Dataset/train.pkl")
+# handler.articles.save("../Dataset/test.pkl")
 # Only recompute labels:
 # handler.articles.compute_labels()
 
@@ -24,6 +25,8 @@ C = handler.get_tensor()
 # handler.postprocess()
 labels = handler.articles.labels
 all_labels = handler.articles.labels_untouched
+
+print(len(all_labels), "Articles")
 
 C, labels, all_labels = list(
     zip(*np.random.permutation(list(zip(C, labels, all_labels)))))
@@ -49,13 +52,14 @@ else:
 beliefs[beliefs > 0] = 1
 beliefs[beliefs < 0] = -1
 
+
 TP, TN, FP, FN = get_rate(beliefs, labels, all_labels)
 acc = accuracy(TP, TN, FP, FN)
 prec = precision(TP, FP)
 rec = recall(TP, FN)
 f1 = f1_score(prec, rec)
-print("return int belief", beliefs)
-print("labels correct", all_labels)
-print("labels to complete", labels)
+# print("return int belief", beliefs)
+# print("labels correct", all_labels)
+# print("labels to complete", labels)
 print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
 

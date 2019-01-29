@@ -11,7 +11,8 @@ class CSVLoader(DataLoader):
             k = 0
             done = False
             while data and not done:
-                print(k)
+                if not k % 100:
+                    print(k)
                 try:
                     data = next(reader)
                 except csv.Error:
@@ -22,10 +23,13 @@ class CSVLoader(DataLoader):
                 index_label = self.config.dataset.csv.label
                 uid, title, text, label = data[index_uid], data[index_title], data[index_content], data[index_label]
                 article_type = "fake" if int(label) else "real"
-                self.articles[article_type].append({
-                    'content': self._get_content(uid, text, type=article_type),
-                    'title': self._get_content(uid + "_title", title, type=article_type)
-                })
-                k += 1
+                content = self._get_content(uid, text, type=article_type)
+                if 10 < len(content) < 2000:
+                    title = self._get_content(uid + "_title", title, type=article_type)
+                    self.articles[article_type].append({
+                        'content': content,
+                        'title': title
+                    })
+                    k += 1
             print("Imported.")
         return self.articles, self.original_articles, self.vocabulary, self.frequency

@@ -15,7 +15,7 @@ class ArticlesHandler:
     """
 
     def __init__(self, config: Config):
-        """
+        """com	0.068
         :param config: Config dictionary
         :type config: dict
         """
