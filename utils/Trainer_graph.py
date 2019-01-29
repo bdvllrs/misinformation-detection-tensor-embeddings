@@ -1,13 +1,9 @@
-from utils import embedding_matrix_2_kNN, get_rate, precision, recall, f1_score, accuracy
-from utils.ArticleTensor import ArticleTensor
-from utils.ArticlesHandler import ArticlesHandler
+from utils import  accuracy
 from utils import Config
-import time
 import numpy as np
-from pygcn.utils import accuracy, load_from_features, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
+from pygcn.utils import accuracy, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
 from pyagnn.agnn.model import AGNN
 from pygcn.models import GCN
-import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import scipy.sparse as sp
@@ -19,13 +15,13 @@ config = Config('config/')
 
 class TrainerGraph:
 
-    def __init__(self, C, graph, all_labels_init, labels_init):
+    def __init__(self, C_nodes, graph, all_labels_init, labels_init):
         self.loss_min = 100
         self.max_acc = 0
         self.epochs = config.learning.epochs
         self.adj = sp.coo_matrix(graph, dtype=np.float32)
         self.all_labels = encode_onehot(all_labels_init)
-        self.features = normalize(np.array(C))
+        self.features = normalize(np.array(C_nodes))
         self.adj = normalize(self.adj + sp.eye(self.adj.shape[0]))
         self.features = torch.FloatTensor(np.array(self.features))
         self.all_labels = torch.LongTensor(np.where(self.all_labels)[1])
@@ -73,16 +69,14 @@ class TrainerGraph:
             self.model.eval()
             output = self.model(self.features, self.adj)
             acc_test = accuracy(output[self.idx_test], self.all_labels[self.idx_test])
-            if acc_test.item() > self.max_acc:
+            if acc_test.item() >= self.max_acc:
                 self.max_acc = acc_test.item()
                 if config.learning.save_model:
-                    pass
-                    #torch.save(self.model.state_dict(),
-                    #           config.paths.models)
+                    torch.save(self.model.state_dict(),
+                               config.paths.models)
                 self.best_epoch = epoch
                 beliefs = output.max(1)[1].type_as(self.labels).numpy()
                 beliefs[beliefs == 1] = -1
                 beliefs[beliefs == 0] = 1
-
         return beliefs
 
