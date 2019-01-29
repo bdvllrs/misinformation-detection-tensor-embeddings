@@ -61,7 +61,6 @@ for meth in enumerate(methods):
                 for j, val2 in enumerate(pourcentage_voisin):
                     num_nearest_neighbours = int(val2)
                     assert nbre_total_article >= num_nearest_neighbours, "Can't have more neighbours than nodes!"
-
                     graph = embedding_matrix_2_kNN(C, k=num_nearest_neighbours).toarray()
                     beliefs = solve(graph, labels)
                     beliefs[beliefs > 0] = 1

@@ -85,5 +85,8 @@ class TrainerGraph:
                 beliefs = output.max(1)[1].type_as(self.labels).numpy()
                 beliefs[beliefs == 1] = -1
                 beliefs[beliefs == 0] = 1
+                #torch.save(self.model.state_dict(),
+                #               "../Stats/models_graph/loss/model{}_methodmix_{}_ration_{}_unkn.h5".format(
+                #                   config.method_decomposition_embedding, val, config.num_nearest_neighbours))
         return beliefs
 

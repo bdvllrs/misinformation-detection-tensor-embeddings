@@ -3,44 +3,37 @@ from utils.ArticlesHandler import ArticlesHandler
 from utils import Config
 import time
 import numpy as np
-from pygcn.utils import accuracy, load_from_features, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
-from pyagnn.agnn.model import AGNN
-import torch.nn.functional as F
-import torch.optim as optim
-import scipy.sparse as sp
-import torch
+from pygcn.utils import accuracy
 
-seed = 12
-
-np.random.seed(seed=seed)
-
-layers_test = [2]
-cuda = False
-hidden = 16
-dropout = 0.5
-lr = 0.01
-weight_decay = 5e-4
-fastmode = False
-epochs = 1000#450
-
+from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
-pourcentage_know = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 95]
-
+seed = 12
+np.random.seed(seed=seed)
+cuda = config.learning.cuda
+hidden = config.learning.hidden
+dropout = config.learning.dropout
+lr = config.learning.lr
+weight_decay = config.learning.weight_decay
+fastmode = config.learning.fastmode
+epochs = config.learning.epochs
+pourcentage_know = config.stats.pourcentage_know
+pourcentage_voisin = config.stats.pourcentage_voisin
+layers_test = config.stats.layers_test
+ratio = config.embedding.vocab_util_pourcentage
 handler = ArticlesHandler(config)
-#"""
 nbre_total_article = config.stats.num_real_articles + config.stats.num_fake_articles
-pourcentage_voisin = np.array([2,3,4,5])
-ratios = [0.75]
-methods = [("Glove", "mean")]
+layers = config.learning.layers
+methods = config.stats.methods_1
 
 
 for meth in enumerate(methods):
     debut_meth = time.time()
-    for layers in layers_test:
-        print("Layers : ", str(layers))
+    config.set("embedding.method_decomposition_embedding", meth)
+    handler = ArticlesHandler(config)
+    for meth2 in enumerate(methods):
+        print("Methods : ", str(meth2))
         debut = time.time()
-        ratio = 0.75
         accuracy_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         accuracy_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         precision_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
@@ -54,6 +47,7 @@ for meth in enumerate(methods):
         times_score_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
 
+
         C = handler.get_tensor()
         # select_labels = SelectLabelsPostprocessor(config, handler.articles)
         # handler.add_postprocessing(select_labels, "label-selection")
@@ -61,14 +55,15 @@ for meth in enumerate(methods):
         labels = handler.articles.labels
         all_labels = handler.articles.labels_untouched
 
-        if config.graph.node_features == config.embedding.method_decomposition_embedding:
+        if meth == meth2:
             C_nodes = C.copy()
         else:
-            config.set("method_decomposition_embedding", config.graph.method_create_graph)
+            config.set("method_decomposition_embedding", meth2)
             C_nodes = handler.get_tensor()
 
         C, C_nodes, labels, all_labels = list(
             zip(*np.random.permutation(list(zip(C, C_nodes, labels, all_labels)))))
+
 
 
         for i, val in enumerate(pourcentage_know):
@@ -80,103 +75,39 @@ for meth in enumerate(methods):
             f12 = []
             times2 = []
             best_epochs2 = []
-            for acc_repeat in range(config["iteration_stat"]):
+            for acc_repeat in range(config.stats.iteration_stat):
                 acc = []
                 prec = []
                 rec = []
                 f1 = []
                 times= []
                 best_epochs = []
-                labels_init = list(all_labels_init)
+                all_labels_init = all_labels
+                labels_init = list(all_labels)
                 for k_num in range(num_unknown_labels):
                     labels_init[k_num] = 0
-                C, C_node, labels_init, all_labels_init = list(
-                    zip(*np.random.permutation(list(zip(C, C_node, labels_init, all_labels_init)))))
+                C, C_nodes, labels_init, all_labels_init = list(
+                    zip(*np.random.permutation(list(zip(C, C_nodes, labels_init, all_labels_init)))))
                 for j, val2 in enumerate(pourcentage_voisin):
                     num_nearest_neighbours = int(val2)
                     assert nbre_total_article >= num_nearest_neighbours, "Can't have more neighbours than nodes!"
-                    graph = embedding_matrix_2_kNN(C, k=config.num_nearest_neighbours).toarray()
-                    adj = sp.coo_matrix(graph, dtype=np.float32)
-                    all_labels = encode_onehot(all_labels_init)
-                    features = normalize(np.array(C_node))
-                    adj = normalize(adj + sp.eye(adj.shape[0]))
-                    features = torch.FloatTensor(np.array(features))
-                    all_labels = torch.LongTensor(np.where(all_labels)[1])
-                    adj = sparse_mx_to_torch_sparse_tensor(adj)
-                    idx_test = np.where(np.array(labels_init)==0)[0]
-                    labels = encode_onehot(labels_init)
-                    labels = torch.LongTensor(np.where(labels)[1])
-                    idx_train = np.where(labels)[0]
-                    idx_train = torch.LongTensor(idx_train)
-                    idx_test = torch.LongTensor(idx_test)
-                    model = AGNN(nfeat=features.shape[1],
-                                 nhid=hidden,
-                                 nclass=2,
-                                 nlayers=layers,
-                                 dropout_rate=0.5)
-
-                    optimizer = optim.Adam(model.parameters(),
-                                           lr=lr, weight_decay=weight_decay)
-
-                    if cuda:
-                        model.cuda()
-                        features = features.cuda()
-                        adj = adj.cuda()
-                        all_labels = all_labels.cuda()
-                        idx_train = idx_train.cuda()
-                        idx_test = idx_test.cuda()
-
-                    t_total = time.time()
-                    loss_min = 100
-                    max_acc = 0
-                    for epoch in range(epochs):
-                        model.train()
-                        optimizer.zero_grad()
-                        output = model(features, adj)
-                        loss_train = F.nll_loss(output[idx_train], all_labels[idx_train])
-                        #acc_train = accuracy(output[idx_train], all_labels[idx_train])
-                        loss_train.backward()
-                        optimizer.step()
-                        model.eval()
-                        output = model(features, adj)
-                        acc_test = accuracy(output[idx_test], all_labels[idx_test])
-                        if acc_test.item() > max_acc:
-                            max_acc = acc_test.item()
-                            torch.save(model.state_dict(),
-                                       "../Stats/models_graph/acc/model{}_methodmix_{}_ration_{}_unkn_{}_layers_{}_acc.h5".format(
-                                           config.method_decomposition_embedding, val, config.num_nearest_neighbours, layers, max_acc))
-                            best_epoch = epoch
-                            beliefs = output.max(1)[1].type_as(labels).numpy()
-                            beliefs[beliefs == 1] = -1
-                            beliefs[beliefs == 0] = 1
-                            TP, TN, FP, FN = get_rate(beliefs, labels_init, all_labels_init)
-                            if len(acc)!=j:
-                                acc.pop()
-                                prec.pop()
-                                rec.pop()
-                                f1.pop()
-                                best_epochs.pop()
-                                times.pop()
-                            acc.append(accuracy2(TP, TN, FP, FN))
-                            prec.append(precision(TP, FP))
-                            rec.append(recall(TP, FN))
-                            f1.append(f1_score(prec[-1], rec[-1]))
-                            best_epochs.append(best_epoch)
-                            times.append(time.time()-t_total)
-                        #if loss_min > loss_train.item():
-                        #    torch.save(model.state_dict(),
-                        #               "../Stats/models_graph/loss/model{}_methodmix_{}_ration_{}_unkn.h5".format(
-                        #                   config.method_decomposition_embedding, val, config.num_nearest_neighbours))
-                        #    loss_min = loss_train.item()
-                    #print("End training, in ", time.time()-t_total)
-                    #print("Best epoch : ", best_epoch, max_acc)
+                    graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
+                    trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
+                    beliefs = trainer.train()
+                    # Compute hit rate
+                    beliefs[beliefs > 0] = 1
+                    beliefs[beliefs < 0] = -1
+                    TP, TN, FP, FN = get_rate(beliefs, labels, all_labels)
+                    acc = accuracy2(TP, TN, FP, FN)
+                    prec = precision(TP, FP)
+                    rec = recall(TP, FN)
+                    f1 = f1_score(prec, rec)
                 acc2.append(acc)
                 prec2.append(prec)
                 rec2.append(rec)
                 f12.append(f1)
                 best_epochs2.append(best_epochs)
                 times2.append(times)
-
             accuracy_mean[i, :] = np.array(acc2).mean(axis=0)
             accuracy_std[i, :] = np.array(acc2).std(axis=0)
             precision_mean[i, :] = np.array(prec2).mean(axis=0)
@@ -189,33 +120,30 @@ for meth in enumerate(methods):
             best_epoch_score_std[i, :] = np.array(best_epochs2).std(axis=0)
             times_score_mean[i, :] = np.array(times2).mean(axis=0)
             times_score_std[i, :] = np.array(times2).std(axis=0)
-
-
         print('save_model')
-        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_mean'.format(meth, meth2, ratio),
                 accuracy_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_accuracy_val stats_std'.format(meth, meth2, ratio),
                 accuracy_std)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_mean'.format(meth, meth2, ratio),
                 precision_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_precision_val stats_std'.format(meth, meth2, ratio),
                 precision_std)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_mean'.format(meth[1][0], meth[1][1], layers), recall_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_std'.format(meth[1][0], meth[1][1], layers), recall_std)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_mean'.format(meth, meth2, ratio), recall_mean)
+        np.save('../Stats/{}_{}_methodmix_{}_ration_recall_val stats_std'.format(meth, meth2, ratio), recall_std)
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth, meth2, ratio),
                 f1_score_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_std'.format(meth, meth2, ratio),
                 f1_score_std)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_f1_score_val stats_mean'.format(meth, meth2, ratio),
                 best_epoch_score_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_best_epoch_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_best_epoch_score_val stats_std'.format(meth, meth2, ratio),
                 best_epoch_score_std)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_mean'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_mean'.format(meth, meth2, ratio),
                 times_score_mean)
-        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_std'.format(meth[1][0], meth[1][1], layers),
+        np.save('../Stats/{}_{}_methodmix_{}_ration_time_score_val stats_std'.format(meth, meth2, ratio),
                 times_score_std)
 
         print(time.time() - debut)
     print('temps method : ', meth)
     print(time.time() - debut_meth)
-
