@@ -75,6 +75,12 @@ def accuracy(TP, TN, FP, FN):
     else:
         return ((TP + TN) / (TP + TN + FP + FN))
 
+def accuracy2(TP, TN, FP, FN):
+    if TP + TN + FP + FN == 0:
+        return ((TP + TN) / (TP + TN + FP + FN + 1))
+    else:
+        return ((TP + TN) / (TP + TN + FP + FN))
+
 
 def precision(TP, FP):
     if TP + FP == 0:

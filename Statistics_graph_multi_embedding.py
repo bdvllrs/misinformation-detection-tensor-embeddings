@@ -1,12 +1,10 @@
 from utils import embedding_matrix_2_kNN, get_rate, precision, recall, f1_score, accuracy2
-from utils.ArticleTensor import ArticleTensor
 from utils.ArticlesHandler import ArticlesHandler
 from utils import Config
 import time
 import numpy as np
 from pygcn.utils import accuracy, load_from_features, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
 from pyagnn.agnn.model import AGNN
-import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import scipy.sparse as sp
@@ -26,17 +24,12 @@ fastmode = False
 epochs = 1000#450
 
 
-config = Config(file='config')
+config = Config('config/')
 pourcentage_know = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 95]
 
-
+handler = ArticlesHandler(config)
 #"""
-articleTensor = ArticleTensor(config.config)
-articleTensor.get_articles(config["dataset_name"], number_fake=config['num_fake_articles'],
-                           number_real=config['num_real_articles'])
-articleTensor.build_word_to_index(max_words=config['vocab_size'])
-
-nbre_total_article = config['num_real_articles'] + config['num_fake_articles']
+nbre_total_article = config.stats.num_real_articles + config.stats.num_fake_articles
 pourcentage_voisin = np.array([2,3,4,5])
 ratios = [0.75]
 methods = [("Glove", "mean")]
@@ -61,41 +54,23 @@ for meth in enumerate(methods):
         times_score_mean = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
         times_score_std = np.zeros((len(pourcentage_know), len(pourcentage_voisin)))
 
-        tensor, labels, all_labels_init = articleTensor.get_tensor_coocurrence(
-            window=config['size_word_co_occurrence_window'],
-            num_unknown=0,
-            ratio=ratio,
-            use_frequency=meth[1][1])
-        _, (_, _, C) = ArticleTensor.get_parafac_decomposition(tensor, rank=config['rank_parafac_decomposition'])
+        C = handler.get_tensor()
+        # select_labels = SelectLabelsPostprocessor(config, handler.articles)
+        # handler.add_postprocessing(select_labels, "label-selection")
+        # handler.postprocess()
+        labels = handler.articles.labels
+        all_labels = handler.articles.labels_untouched
+
+        if config.graph.node_features == config.embedding.method_decomposition_embedding:
+            C_nodes = C.copy()
+        else:
+            config.set("method_decomposition_embedding", config.graph.method_create_graph)
+            C_nodes = handler.get_tensor()
+
+        C, C_nodes, labels, all_labels = list(
+            zip(*np.random.permutation(list(zip(C, C_nodes, labels, all_labels)))))
 
 
-        tensor, labels_init, all_labels_init = articleTensor.get_tensor_Glove(meth[1][1],
-                                                                    ratio,
-                                                                    num_unknown=0)
-        C_node = np.transpose(tensor)
-        """
-        if meth[1][0] == "LDA":
-            config.set("method_decomposition_embedding", "LDA")
-            print("Loading dataset", config.dataset_name)
-            articles = ArticlesHandler(config)
-            print("Performing decomposition...")
-            C = articles.get_tensor()
-
-            print(C.shape)
-
-            labels_init = articles.articles.labels
-            all_labels_init = articles.articles.labels_untouched
-
-        if meth[1][0] == "Transformer":
-            config.set("method_decomposition_embedding", "Transformer")
-            print("Loading dataset", config.dataset_name)
-            articles = ArticlesHandler(config)
-            print("Performing decomposition...")
-            C = articles.get_tensor().detach().numpy()
-            labels_init = articles.articles.labels
-            all_labels_init = articles.articles.labels_untouched
-        """
-        print(meth, layers)
         for i, val in enumerate(pourcentage_know):
             print("Pourcentage : ", str(val))
             num_unknown_labels = nbre_total_article - int(val / 100 * nbre_total_article)

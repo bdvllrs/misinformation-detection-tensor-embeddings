@@ -12,6 +12,7 @@ import torch
 
 
 config = Config('config/')
+device = torch.device("cuda" if config.learning.cuda else "cpu")
 
 class TrainerGraph:
 
@@ -29,8 +30,13 @@ class TrainerGraph:
         self.idx_test = np.where(np.array(labels_init) == 0)[0]
         self.labels = encode_onehot(labels_init)
         self.labels = torch.LongTensor(np.where(self.labels)[1])
-        self.idx_train = np.where(self.labels)[0]
-        self.idx_train = torch.LongTensor(self.idx_train)
+        self.idx_train_all = np.where(self.labels)[0]
+
+
+        self.idx_train = torch.LongTensor(self.idx_train_all[:int((1 - config.learning.ratio_val)*len(self.idx_train_all))])
+        self.idx_val = torch.LongTensor(self.idx_train_all[int((1 - config.learning.ratio_val)*len(self.idx_train_all)):])
+
+
         self.idx_test = torch.LongTensor(self.idx_test)
         if config.learning.method_learning == "GCN":
             self.model = GCN(nfeat=self.features.shape[1],
@@ -48,10 +54,11 @@ class TrainerGraph:
         if config.learning.cuda:
             self.model.cuda()
             self.features = self.features.cuda()
-            self.adj = self.adj.cuda()
+            #self.adj = self.adj.cuda()
             self.all_labels = self.all_labels.cuda()
             self.idx_train = self.idx_train.cuda()
             self.idx_test = self.idx_test.cuda()
+            self.idx_val = self.idx_val.cuda()
 
     def train(self):
         optimizer = optim.Adam(self.model.parameters(),
@@ -68,9 +75,9 @@ class TrainerGraph:
             optimizer.step()
             self.model.eval()
             output = self.model(self.features, self.adj)
-            acc_test = accuracy(output[self.idx_test], self.all_labels[self.idx_test])
-            if acc_test.item() >= self.max_acc:
-                self.max_acc = acc_test.item()
+            acc_val = accuracy(output[self.idx_val], self.all_labels[self.idx_val])
+            if acc_val.item() >= self.max_acc:
+                self.max_acc = acc_val.item()
                 if config.learning.save_model:
                     torch.save(self.model.state_dict(),
                                config.paths.models)

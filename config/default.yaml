@@ -47,3 +47,4 @@ learning:
   epochs: 1000
   layers: 2
   save_model: No
+  ratio_val: 0.20

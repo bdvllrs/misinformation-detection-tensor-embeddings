@@ -15,7 +15,7 @@ debut = time.time()
 handler = ArticlesHandler(config)
 
 # Save in a pickle file. To open, use the pickle dataloader.
-handler.articles.save("../Dataset/train.pkl")
+#handler.articles.save("../Dataset/train.pkl")
 # Only recompute labels:
 # handler.articles.compute_labels()
 
