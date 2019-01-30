@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.neighbors import kneighbors_graph
 
 
-def embedding_matrix_2_kNN(X, k, mode='connectivity'):
+def embedding_matrix_2_kNN(X, k, mode='connectivity', sentence_to_articles=None):
     """
     :param X: the embedding  matrix called C in the paper
     :param k: number of nearest neighbours
@@ -21,6 +21,12 @@ def embedding_matrix_2_kNN(X, k, mode='connectivity'):
     KNN_nonsym = kneighbors_graph(X, k, mode=mode, include_self=False)
     KNN = KNN_nonsym + np.transpose(KNN_nonsym)
     KNN[KNN == 2] = 1
+    # Add sentence in the same article in the graph
+    if sentence_to_articles is not None:
+        for k in range(1, len(sentence_to_articles)):
+            if sentence_to_articles[k-1] == sentence_to_articles[k]:
+                KNN[k-1, k] = 1
+                KNN[k, k-1] = 1
     return KNN
 
 

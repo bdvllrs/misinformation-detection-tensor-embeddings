@@ -1,17 +1,17 @@
+import json
 import os
+import re
+
+import ftfy
 import nltk
 import numpy as np
-import torch
 import spacy
-import ftfy
 import sparse
-from tensorly.contrib.sparse.decomposition import tucker
-from utils import get_fullpath, load_glove_model
-from transformer.model_pytorch import TransformerModel, load_openai_pretrained_model, DEFAULT_CONFIG
 import torch
-import tqdm
-import json
-import re
+
+from tensorly.contrib.sparse.decomposition import tucker
+from transformer.model_pytorch import DEFAULT_CONFIG, TransformerModel, load_openai_pretrained_model
+from utils import get_fullpath, load_glove_model
 
 
 class ArticleTensor:

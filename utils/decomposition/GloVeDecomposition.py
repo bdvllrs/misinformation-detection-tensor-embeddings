@@ -53,4 +53,6 @@ class GloVeDecomposition(Decomposition):
             vector = hx[0].detach().numpy()
             return vector
         else:
+            if not N:
+                return vector
             return vector / N

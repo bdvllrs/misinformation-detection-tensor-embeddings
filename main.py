@@ -18,6 +18,7 @@ handler = ArticlesHandler(config)
 # handler.articles.compute_labels()
 
 C = handler.get_tensor()
+print(C.shape)
 # select_labels = SelectLabelsPostprocessor(config, handler.articles)
 # handler.add_postprocessing(select_labels, "label-selection")
 # handler.postprocess()
@@ -35,12 +36,10 @@ else:
     config.set("method_decomposition_embedding", config.graph.method_create_graph)
     C_nodes = handler.get_tensor()
 
-C, C_nodes,  labels, all_labels = list(
-    zip(*np.random.permutation(list(zip(C, C_nodes, labels, all_labels)))))
-
 fin = time.time()
 print("get tensor and decomposition done", fin - debut)
-graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours).toarray()
+sentence_to_articles = None if not config.graph.sentence_based else handler.articles.sentence_to_article
+graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours, sentence_to_articles=sentence_to_articles).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
 
@@ -60,7 +59,9 @@ else:
     beliefs[beliefs > 0] = 1
     beliefs[beliefs < 0] = -1
 
-
+print(beliefs.shape)
+print(len(all_labels))
+print(len(labels))
 # Plus de sense car multiclasse...
 # TP, TN, FP, FN = get_rate(beliefs, labels, all_labels)
 # acc = accuracy(TP, TN, FP, FN)

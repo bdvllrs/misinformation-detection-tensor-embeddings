@@ -2,6 +2,8 @@ dataset:
   type: folder # in [folder, csv, pickle]
   dataset_path: ../Dataset/fakenewsdata1/Public Data
   dataset_name: Buzzfeed Political News Dataset
+  sentence_based:
+    dataset_path: ../Dataset/Politifact/dataset.pkl
   csv:
     uid: 0 # index 0
     title: 1
@@ -27,6 +29,7 @@ embedding:
 graph:
   num_nearest_neighbours: 5
   node_features: GloVe
+  sentence_based: Yes  # If Yes, graph is split into sentences
 
 stats:
   ratio_labeled: 0.02

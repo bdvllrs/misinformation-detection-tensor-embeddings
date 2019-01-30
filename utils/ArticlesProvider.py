@@ -1,6 +1,6 @@
 import numpy as np
 from utils import get_fullpath, Config
-from utils.dataloaders import FolderLoader, CSVLoader, PickleLoader
+from utils.dataloaders import FolderLoader, CSVLoader, PickleLoader, StatementsLoader
 import pickle
 
 
@@ -20,7 +20,10 @@ class ArticlesProvider:
         self.articles = {}
         self.original_articles = {}
         self.article_list = []
+        self.sentence_to_article = []
         self.labels = []
+        self.statements = {}
+        self.ordiginal_statements = {}
         self.labels_untouched = []
         self.nb_all_articles = 0
         self.dataloader = self.get_dataloader()
@@ -46,6 +49,11 @@ class ArticlesProvider:
 
     def load_articles(self):
         self.articles, self.original_articles, self.vocabulary, self.frequency = self.dataloader.load()
+        if self.config.graph.sentence_based:
+            statement_loader = StatementsLoader(self.config)
+            statement_loader.frequency = self.frequency
+            statement_loader.vocabulary = self.vocabulary
+            self.statements, self.ordiginal_statements, self.vocabulary, self.fr = statement_loader.load()
         self._build_word_to_index()
         self.nb_all_articles = sum([len(self.articles[label]) for label in self.articles.keys()])
 
@@ -79,21 +87,41 @@ class ArticlesProvider:
         ratio_labeled = self.config.stats.ratio_labeled
         articles = []
         labels = []
-        for k, (label, a) in enumerate(self.articles.items()):
+        k = 0
+        start_label_to_keep = 0
+        for label, a in self.articles.items():
             a = list(map(lambda x: x['content'], a))
             articles.extend(a)
             labels.extend([k + 1] * len(a))
+            k += 1
+        if self.config.graph.sentence_based:
+            start_label_to_keep = k
+            for label, a in self.statements.items():
+                a = list(map(lambda x: [x['content']], a))
+                articles.extend(a)
+                labels.extend([k + 1] * len(a))
+                k += 1
         # Shuffle the labels and articles
         articles, labels = list(zip(*np.random.permutation(list(zip(articles, labels)))))
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
-        num_known = int(len(labels) * ratio_labeled / len(self.articles.keys()))
-        num_per_class = [num_known] * len(self.articles.keys())
-        for k in range(len(labels)):
-            if num_per_class[labels[k] - 1] > 0:
-                num_per_class[labels[k] - 1] -= 1
-                labels[k] = 0
+        if not self.config.graph.sentence_based:
+            num_unknown = int(len(labels) * (1 - ratio_labeled) / len(self.articles.keys()))
+            num_per_class = [num_unknown] * len(self.articles.keys())
+            for k in range(len(labels)):
+                if num_per_class[labels[k] - 1] > 0:
+                    num_per_class[labels[k] - 1] -= 1
+                    labels[k] = 0
+        else:
+            for k in range(len(labels)):
+                if labels[k] < start_label_to_keep:  # only keep labels of the statements
+                    labels[k] = 0
         self.labels = labels
         self.labels_untouched = labels_untouched
-        self.article_list = articles
+        self.article_list = articles if not self.config.graph.sentence_based else []
+        if self.config.graph.sentence_based:
+            for k, article in enumerate(articles):
+                for sentence in article:
+                    self.article_list.append(sentence)
+                    self.sentence_to_article.append(k)
