@@ -22,7 +22,7 @@ C = handler.get_tensor()
 # handler.add_postprocessing(select_labels, "label-selection")
 # handler.postprocess()
 labels = handler.articles.labels
-all_labels = handler.articles.labels_untouched
+all_labels = np.array(handler.articles.labels_untouched)
 
 if config.learning.method_learning == "FaBP":
     assert max(labels) == 2, "FaBP can only be used for binary classification."
