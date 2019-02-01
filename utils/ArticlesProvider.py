@@ -110,6 +110,7 @@ class ArticlesProvider:
                     labels.extend([k + 1] * len(all_s))
                     i += 1
             else:
+                self.sentence_to_article.extend([i] * len(all_a))
                 articles.extend(all_a)
                 labels.extend([k + 1] * len(all_a))
             k += 1

@@ -29,7 +29,7 @@ embedding:
 graph:
   num_nearest_neighbours: 5
   node_features: GloVe
-  sentence_based: Yes  # If Yes, graph is split into sentences
+  sentence_based: No  # If Yes, graph is split into sentences
 
 stats:
   ratio_labeled: 0.02
