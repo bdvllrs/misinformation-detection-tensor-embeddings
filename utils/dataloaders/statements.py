@@ -9,11 +9,16 @@ class StatementsLoader(DataLoader):
             statements = pickle.load(file)
         for k, statement in enumerate(statements):
             label = statement['label']
-            if label not in self.articles.keys():
-                self.articles[label] = []
-            content = self._get_content(str(k) + "_statements", statement['text'], label=label, split_sentences=False)
-            self.articles[label].append({
-                "content": content
-            })
+            if label != "half-true":
+                if label in ['true', 'mostly-true']:
+                    label = "real"
+                else:
+                    label = "fake"
+                if label not in self.articles.keys():
+                    self.articles[label] = []
+                content = self._get_content(str(k) + "_statements", statement['text'], label=label, split_sentences=False)
+                self.articles[label].append({
+                    "content": content
+                })
         return self.articles, self.original_articles, self.vocabulary, self.frequency
 

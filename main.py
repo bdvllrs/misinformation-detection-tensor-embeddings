@@ -1,10 +1,10 @@
 from utils.ArticlesHandler import ArticlesHandler
 from utils import solve, embedding_matrix_2_kNN, get_rate, accuracy, precision, recall, f1_score
 from utils.Trainer_graph import TrainerGraph
-from utils import Config
+from utils import Config, accuracy_sentence_based
 import time
 import numpy as np
-#from utils.postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
+# from utils.postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
 from utils.Trainer_graph import TrainerGraph
 
 config = Config('config/')
@@ -18,7 +18,6 @@ handler = ArticlesHandler(config)
 # handler.articles.compute_labels()
 
 C = handler.get_tensor()
-print(C.shape)
 # select_labels = SelectLabelsPostprocessor(config, handler.articles)
 # handler.add_postprocessing(select_labels, "label-selection")
 # handler.postprocess()
@@ -26,7 +25,7 @@ labels = handler.articles.labels
 all_labels = handler.articles.labels_untouched
 
 if config.learning.method_learning == "FaBP":
-    assert max(all_labels) == 2, "FaBP can only be used for binary classification."
+    assert max(labels) == 2, "FaBP can only be used for binary classification."
 
 print(len(all_labels), "Articles")
 
@@ -39,7 +38,8 @@ else:
 fin = time.time()
 print("get tensor and decomposition done", fin - debut)
 sentence_to_articles = None if not config.graph.sentence_based else handler.articles.sentence_to_article
-graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours, sentence_to_articles=sentence_to_articles).toarray()
+graph = embedding_matrix_2_kNN(C, k=config.graph.num_nearest_neighbours,
+                               sentence_to_articles=sentence_to_articles).toarray()
 fin3 = time.time()
 print("KNN done", fin3 - fin)
 
@@ -50,27 +50,19 @@ if config.learning.method_learning == "FaBP":
     fin4 = time.time()
     print("FaBP done", fin4 - fin3)
 else:
-    trainer = TrainerGraph(C_nodes,  graph, all_labels, labels)
+    trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
     beliefs = trainer.train()
     fin4 = time.time()
     print("Learning done", fin4 - fin3)
     # Compute hit rate
     # TODO: changer pour le multiclasse...
-    beliefs[beliefs > 0] = 1
-    beliefs[beliefs < 0] = -1
+    beliefs[beliefs >= 0] = 1
+    beliefs[beliefs < 0] = 2
 
-print(beliefs.shape)
-print(len(all_labels))
-print(len(labels))
-# Plus de sense car multiclasse...
-# TP, TN, FP, FN = get_rate(beliefs, labels, all_labels)
-# acc = accuracy(TP, TN, FP, FN)
-# prec = precision(TP, FP)
-# rec = recall(TP, FN)
-# f1 = f1_score(prec, rec)
-# print("return int belief", beliefs)
-# print("labels correct", all_labels)
-# print("labels to complete", labels)
-# print("% Correct (accuracy, precision, recall, f1_score)", 100 * acc, prec * 100, rec * 100, f1 * 100)
-acc = sum(beliefs == all_labels) / float(len(all_labels))
+
+if config.graph.sentence_based:
+    acc = accuracy_sentence_based(handler, beliefs)
+else:
+    acc = sum(beliefs == all_labels) / float(len(all_labels))
+
 print("Accuracy", acc)

@@ -1,3 +1,5 @@
+import statistics
+
 import numpy as np
 import os
 import json
@@ -130,3 +132,32 @@ def load_glove_model(glove_file):
         model[word] = embedding
     print("Done.", len(model), " words loaded!")
     return model
+
+
+def accuracy_sentence_based(handler, beliefs):
+    fake_indexes = [k for (k, l) in handler.articles.index_to_label.items() if l == 'fake']
+    real_indexes = [k for (k, l) in handler.articles.index_to_label.items() if l == 'real']
+
+    all_labels = np.array(handler.articles.labels_untouched)
+
+    beliefs[beliefs == max(fake_indexes)] = min(fake_indexes)
+    beliefs[beliefs == max(real_indexes)] = min(real_indexes)
+    all_labels[all_labels == max(fake_indexes)] = min(fake_indexes)
+    all_labels[all_labels == max(real_indexes)] = min(real_indexes)
+
+    beliefs_per_article = {}
+    true_labels = {}
+    for k in range(len(beliefs)):
+        article_id = handler.articles.sentence_to_article[k]
+        true_labels[article_id] = all_labels[k]
+        if article_id not in beliefs_per_article:
+            beliefs_per_article[article_id] = [beliefs[k]]
+        else:
+            beliefs_per_article[article_id].append(beliefs[k])
+
+    num_good = 0
+    for k in range(len(true_labels.keys())):
+        if statistics.median(beliefs_per_article[k]) == true_labels[k]:
+            num_good += 1
+
+    return num_good / float(len(true_labels.keys()))

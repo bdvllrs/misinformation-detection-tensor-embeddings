@@ -21,6 +21,7 @@ class ArticlesProvider:
         self.original_articles = {}
         self.article_list = []
         self.sentence_to_article = []
+        self.index_to_label = {}
         self.labels = []
         self.statements = {}
         self.ordiginal_statements = {}
@@ -88,21 +89,34 @@ class ArticlesProvider:
         articles = []
         labels = []
         k = 0
-        start_label_to_keep = 0
-        for label, a in self.articles.items():
-            a = list(map(lambda x: x['content'], a))
-            articles.extend(a)
-            labels.extend([k + 1] * len(a))
-            k += 1
+        i = 0
         if self.config.graph.sentence_based:
-            start_label_to_keep = k
             for label, a in self.statements.items():
-                a = list(map(lambda x: [x['content']], a))
+                self.index_to_label[k + 1] = label
+                a = list(map(lambda x: x['content'], a))
+                self.sentence_to_article.append(i)
                 articles.extend(a)
                 labels.extend([k + 1] * len(a))
                 k += 1
+                i += 1
+            start_label_to_remove = k
+        for label, a in self.articles.items():
+            self.index_to_label[k + 1] = label
+            all_a = list(map(lambda x: x['content'], a))
+            if self.config.graph.sentence_based:
+                for all_s in all_a:
+                    self.sentence_to_article.extend([i] * len(all_s))
+                    articles.extend(all_s)
+                    labels.extend([k + 1] * len(all_s))
+                    i += 1
+            else:
+                articles.extend(all_a)
+                labels.extend([k + 1] * len(all_a))
+            k += 1
         # Shuffle the labels and articles
-        articles, labels = list(zip(*np.random.permutation(list(zip(articles, labels)))))
+        articles, labels, self.sentence_to_article = list(
+            zip(*np.random.permutation(list(zip(articles, labels, self.sentence_to_article)))))
+        self.sentence_to_article = list(self.sentence_to_article)
         labels = list(labels)
         labels_untouched = labels[:]
         # Add zeros randomly to some labels
@@ -115,13 +129,8 @@ class ArticlesProvider:
                     labels[k] = 0
         else:
             for k in range(len(labels)):
-                if labels[k] < start_label_to_keep:  # only keep labels of the statements
+                if labels[k] > start_label_to_remove:  # only keep labels of the statements
                     labels[k] = 0
         self.labels = labels
         self.labels_untouched = labels_untouched
-        self.article_list = articles if not self.config.graph.sentence_based else []
-        if self.config.graph.sentence_based:
-            for k, article in enumerate(articles):
-                for sentence in article:
-                    self.article_list.append(sentence)
-                    self.sentence_to_article.append(k)
+        self.article_list = articles
