@@ -1,16 +1,27 @@
-Python implementation of 
+# General :
+
+Our work proposes a graph-based semi-supervised fake news detection method.
+
+
+First, this repo is a python implementation of
 _Guacho, G. B., Abdali, S., Shah, N., & Papalexakis, 
 E. E. (2018). Semi-supervised Content-based Detection of 
 Misinformation via Tensor Embeddings. arXiv preprint arXiv:1804.09088._
+
+
+Then we proposed to compare the leanring method based on FaBP to a graph neural method one.
+
+
 
 # Install guide
 
 Requires python >= 3.6.
 
 ## Configuration
-Copy the `config/config.default.json` and rename the copy `config/config.json`.
+Copy the `config/config.default.yaml` and rename the copy `config/config.yaml`.
 
 This file will contain the configuration of the project.
+
 ## To use sparse matrices
 Uses last (not even released) tensorly sparse features.
 
@@ -26,11 +37,22 @@ $ git clone https://github.com/jcrist/tensorly.git tensorly-sparse & cd tensorly
 $ git checkout sparse-take-2
 ```
 Then place the `tensorly-sparse/tensorly` folder our project structure.
-# Configuration file for different method
 
-## Method for the embedding of the article:
+## To use Transformer
 
-There are 2 choices : Method of the co-occurence matrix or embedding with GloVe.
+Install master version of sparse:
+```bash
+$ git clone https://github.com/huggingface/pytorch-openai-transformer-lm.git
+```
+ Then place the `pytorch-openai-transformer-lm/` folder in our project structure under teh name `transformer`
+
+
+# Methods
+
+## Method for article embedding and construct the graph:
+
+There are multiple choices : Method of the co-occurence matrix / embedding with GloVe (mean or RNN) / Transformer /
+LDA-idf.
 
 ### Co-occurence matrix
 
@@ -79,18 +101,35 @@ of OpenAI. Set the config path :
   }
 ```
 
-# WMD
+## Word Mover Distance
+
+The idea is instead of using the euclidean distance, we can use the [WMD](http://proceedings.mlr.press/v37/kusnerb15.pdf)
+
+
 Install packages:
 
 - spacy
 - wmd
 
-# PyGCN
-The `pygcn` lib used in the notebook is: [tkipf pytorch implementation](https://github.com/tkipf/pygcn).
+## Learning Methods
+
+### PyGCN
+The `pygcn` lib used is: [tkipf pytorch implementation](https://github.com/tkipf/pygcn).
+
+### PyAGNN
+The `pyagnn` lib used is based on [dawnrange pytorch implementation](https://github.com/dawnranger/pytorch-AGNN).
+
+#Results
+
+Our pipeline is described in [our report]()
+Here is our result on the dataset
+
+![Alt text](fig/resv5.png?raw=true "Title")
 
 
 # Credits to
 - Kipf, Thomas N and Welling, Max, _Semi-Supervised Classification with Graph Convolutional Networks_. [https://github.com/tkipf/pygcn]().
 - TensorLy: Tensor Learning in Python, Jean Kossaifi and Yannis Panagakis and Anima Anandkumar and Maja Pantic
 - Vlad Niculae, Matt Kusner for the word mover's distance knn.
+- Attention-based Graph Neural Network for semi-supervised learning,
 
