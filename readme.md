@@ -119,9 +119,10 @@ The `pygcn` lib used is: [tkipf pytorch implementation](https://github.com/tkipf
 ### PyAGNN
 The `pyagnn` lib used is based on [dawnrange pytorch implementation](https://github.com/dawnranger/pytorch-AGNN).
 
-#Results
+# Results
 
-Our pipeline is described in [our report]()
+Our pipeline is described in [our report](https://github.com/bdvllrs/misinformation-detection-tensor-embeddings/blob/master/Fake_News_Detection_report.pdf)
+
 Here is our result on the dataset
 
 ![Alt text](fig/resv5.png?raw=true "Title")
