@@ -6,6 +6,8 @@ import time
 import numpy as np
 # from utils.postprocessing.SelectLabelsPostprocessor import SelectLabelsPostprocessor
 from utils.Trainer_graph import TrainerGraph
+from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
 
 config = Config('config/')
 
@@ -21,7 +23,7 @@ C = handler.get_tensor()
 # select_labels = SelectLabelsPostprocessor(config, handler.articles)
 # handler.add_postprocessing(select_labels, "label-selection")
 # handler.postprocess()
-labels = handler.articles.labels
+labels = np.array(handler.articles.labels)
 all_labels = np.array(handler.articles.labels_untouched)
 
 if config.learning.method_learning == "FaBP":
@@ -45,10 +47,26 @@ print("KNN done", fin3 - fin)
 
 if config.learning.method_learning == "FaBP":
     # classe  b(i){> 0, < 0} means i ∈ {“+”, “-”}
-    l = np.array(labels)
-    beliefs = solve(graph, l)
+    beliefs = solve(graph, labels[:])
     fin4 = time.time()
     print("FaBP done", fin4 - fin3)
+elif config.learning.method_learning in ["SVM", "RF"]:
+    training_mask = labels > 0
+    test_mask = labels == 0
+    training_set = C[training_mask, :]
+    l = labels[training_mask]
+    l[l == 2] = -1
+    print("Fitting")
+    if config.learning.method_learning == "SVM":
+        clf = svm.SVC(gamma='scale')
+    else:  # Random forest
+        clf = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0)
+    clf.fit(training_set, l)
+    beliefs = labels
+    beliefs[test_mask] = clf.predict(C[test_mask, :])
+    beliefs[beliefs == -1] = 2
+elif config.learning.method_learning == "RF":  # Random Forest
+    pass
 else:
     trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
     beliefs = trainer.train()
@@ -58,7 +76,6 @@ else:
     # TODO: changer pour le multiclasse...
     beliefs[beliefs >= 0] = 1
     beliefs[beliefs < 0] = 2
-
 
 if config.graph.sentence_based:
     acc = accuracy_sentence_based(handler, beliefs)

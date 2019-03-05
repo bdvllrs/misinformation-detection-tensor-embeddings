@@ -42,7 +42,7 @@ stats:
 
 
 learning:
-  method_learning: GCN # FaBP, GCN, or AGNN
+  method_learning: GCN # FaBP, GCN, AGNN, SVM, RF (random forest)
   cuda: No
   hidden: 16
   dropout: 0.5
