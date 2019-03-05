@@ -56,6 +56,7 @@ def FaBP(D):
 
 def get_rate(beliefs, labels, all_labels):
     # Compute hit rate
+    #-1 devient 2
     TP = 0
     TN = 0
     FP = 0
@@ -66,11 +67,11 @@ def get_rate(beliefs, labels, all_labels):
             compte = compte + 1
             if beliefs[l] == 1 and all_labels[l] == 1:
                 TP += 1
-            if beliefs[l] == -1 and all_labels[l] == -1:
+            if beliefs[l] == 2 and all_labels[l] == 2:
                 TN += 1
-            if beliefs[l] == 1 and all_labels[l] == -1:
+            if beliefs[l] == 1 and all_labels[l] == 2:
                 FP += 1
-            if beliefs[l] == -1 and all_labels[l] == 1:
+            if beliefs[l] == 2 and all_labels[l] == 1:
                 FN += 1
     return (TP / compte, TN / compte, FP / compte, FN / compte)
 

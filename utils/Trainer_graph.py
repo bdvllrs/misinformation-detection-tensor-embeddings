@@ -1,4 +1,4 @@
-from utils import accuracy
+#from utils import accuracy
 from utils import Config
 import numpy as np
 from pygcn.utils import accuracy, encode_onehot, normalize, sparse_mx_to_torch_sparse_tensor
@@ -30,6 +30,7 @@ class TrainerGraph:
         self.labels = encode_onehot(labels_init)
         self.labels = torch.LongTensor(np.where(self.labels)[1])
         self.idx_train_all = np.where(self.labels)[0]
+        self.all_labels_init = torch.LongTensor(self.all_labels)
 
         self.idx_train = torch.LongTensor(
             self.idx_train_all[:int((1 - config.learning.ratio_val) * len(self.idx_train_all))])
@@ -40,14 +41,18 @@ class TrainerGraph:
         if config.learning.method_learning == "GCN":
             self.model = GCN(nfeat=self.features.shape[1],
                              nhid=config.learning.hidden,
-                             nclass=self.labels.max().item() + 1,
+                             nclass=self.labels.max().item(),
                              dropout=config.learning.dropout)
+
+            if config.learning.cuda:
+                self.adj = self.adj.cuda()
+
         elif config.learning.method_learning == "AGNN":
             self.model = AGNN(nfeat=self.features.shape[1],
                               nhid=config.learning.hidden,
-                              nclass=self.labels.max().item() + 1,
+                              nclass=self.labels.max().item(),
                               nlayers=config.learning.layers,
-                              dropout_rate=0.5)
+                              dropout_rate=config.learning.dropout)
 
         if config.learning.cuda:
             self.model.cuda()
@@ -61,8 +66,8 @@ class TrainerGraph:
     def train(self):
         optimizer = optim.Adam(self.model.parameters(),
                                lr=config.learning.lr,
-                               weight_decay=5e-4)
-
+                               weight_decay=config.learning.weight_decay)
+        max_acc = 0
         for epoch in range(self.epochs):
             self.model.train()
             optimizer.zero_grad()
@@ -73,17 +78,20 @@ class TrainerGraph:
             optimizer.step()
             self.model.eval()
             output = self.model(self.features, self.adj)
-            acc_val = accuracy(output[self.idx_val], self.all_labels[self.idx_val])
-            if acc_val.item() >= self.max_acc:
-                self.max_acc = acc_val.item()
+            acc_val = accuracy(output[self.idx_val], self.all_labels_init[self.idx_val])
+            if acc_val.item() >= max_acc:
+                max_acc = acc_val.item()
+            #acc_test = accuracy(output[self.idx_test], self.all_labels_init[self.idx_test])
+            #if acc_test.item() > max_acc:
+            #    max_acc = acc_test.item()
                 if config.learning.save_model:
                     torch.save(self.model.state_dict(),
                                config.paths.models)
                 self.best_epoch = epoch
-                beliefs = output.max(1)[1].type_as(self.labels).numpy()
-                beliefs[beliefs == 1] = -1
-                beliefs[beliefs == 0] = 1
+                acc_test = accuracy(output[self.idx_test], self.all_labels_init[self.idx_test])
+                preds = output
+                beliefs = preds.max(1)[1].type_as(self.all_labels)
                 #torch.save(self.model.state_dict(),
                 #               "../Stats/models_graph/loss/model{}_methodmix_{}_ration_{}_unkn.h5".format(
                 #                   config.method_decomposition_embedding, val, config.num_nearest_neighbours))
-        return beliefs
+        return beliefs.numpy() +1 , acc_test

@@ -8,6 +8,7 @@ import numpy as np
 from utils.Trainer_graph import TrainerGraph
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
 config = Config('config/')
 
@@ -15,7 +16,7 @@ debut = time.time()
 handler = ArticlesHandler(config)
 
 # Save in a pickle file. To open, use the pickle dataloader.
-# handler.articles.save("../Dataset/test.pkl")
+#handler.articles.save("../Dataset/train_fake.pkl")
 # Only recompute labels:
 # handler.articles.compute_labels()
 
@@ -34,7 +35,7 @@ print(len(all_labels), "Articles")
 if config.graph.node_features == config.embedding.method_decomposition_embedding:
     C_nodes = C.copy()
 else:
-    config.set("method_decomposition_embedding", config.graph.method_create_graph)
+    config.embedding.set("method_decomposition_embedding", config.graph.method_create_graph)
     C_nodes = handler.get_tensor()
 
 fin = time.time()
@@ -65,21 +66,22 @@ elif config.learning.method_learning in ["SVM", "RF"]:
     beliefs = labels
     beliefs[test_mask] = clf.predict(C[test_mask, :])
     beliefs[beliefs == -1] = 2
-elif config.learning.method_learning == "RF":  # Random Forest
-    pass
 else:
     trainer = TrainerGraph(C_nodes, graph, all_labels, labels)
-    beliefs = trainer.train()
+    beliefs, acc_test = trainer.train()
+    print(acc_test)
     fin4 = time.time()
     print("Learning done", fin4 - fin3)
     # Compute hit rate
     # TODO: changer pour le multiclasse...
-    beliefs[beliefs >= 0] = 1
-    beliefs[beliefs < 0] = 2
+    #beliefs[beliefs >= 0] = 1
+    #beliefs[beliefs < 0] = 2
+
 
 if config.graph.sentence_based:
     acc = accuracy_sentence_based(handler, beliefs)
 else:
-    acc = sum(beliefs == all_labels) / float(len(all_labels))
+    print(all_labels, beliefs)
+    acc = accuracy_score(all_labels, beliefs)
 
 print("Accuracy", acc)
