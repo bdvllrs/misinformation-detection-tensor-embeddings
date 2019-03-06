@@ -73,6 +73,8 @@ def get_rate(beliefs, labels, all_labels):
                 FP += 1
             if beliefs[l] == 2 and all_labels[l] == 1:
                 FN += 1
+    if compte ==0:
+        compte = 1
     return (TP / compte, TN / compte, FP / compte, FN / compte)
 
 
