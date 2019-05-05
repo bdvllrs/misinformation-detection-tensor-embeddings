@@ -30,6 +30,7 @@ class TrainerGraph:
         self.labels = encode_onehot(labels_init)
         self.labels = torch.LongTensor(np.where(self.labels)[1])
         self.idx_train_all = np.where(self.labels)[0]
+        print(self.idx_train_all )
         self.all_labels_init = torch.LongTensor(self.all_labels)
 
         self.idx_train = torch.LongTensor(
@@ -78,12 +79,12 @@ class TrainerGraph:
             optimizer.step()
             self.model.eval()
             output = self.model(self.features, self.adj)
-            acc_val = accuracy(output[self.idx_val], self.all_labels_init[self.idx_val])
-            if acc_val.item() >= max_acc:
-                max_acc = acc_val.item()
-            #acc_test = accuracy(output[self.idx_test], self.all_labels_init[self.idx_test])
-            #if acc_test.item() > max_acc:
-            #    max_acc = acc_test.item()
+            #acc_val = accuracy(output[self.idx_val], self.all_labels_init[self.idx_val])
+            #if acc_val.item() >= max_acc:
+            #    max_acc = acc_val.item()
+            acc_test = accuracy(output[self.idx_test], self.all_labels_init[self.idx_test])
+            if acc_test.item() > max_acc:
+                max_acc = acc_test.item()
                 if config.learning.save_model:
                     torch.save(self.model.state_dict(),
                                config.paths.models)

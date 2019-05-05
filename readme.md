@@ -121,11 +121,13 @@ The `pyagnn` lib used is based on [dawnrange pytorch implementation](https://git
 
 # Results
 
-Our pipeline is described in [our report](https://github.com/bdvllrs/misinformation-detection-tensor-embeddings/blob/master/Fake_News_Detection_report.pdf)
+Our pipeline is described in [our report](XXX)
 
 Here is our result on the dataset
 
-![Alt text](fig/resv5.png?raw=true "Title")
+![Alt text](fig_and_report/fig_compare_algo.png?raw=true "Title")
+![Alt text](fig_and_report/fig_compare_embedding_agnn.png?raw=true "Title")
+![Alt text](fig_and_report/fig_compare_voisin_agnn.png?raw=true "Title")
 
 
 # Credits to
