@@ -121,7 +121,7 @@ The `pyagnn` lib used is based on [dawnrange pytorch implementation](https://git
 
 # Results
 
-Our pipeline is described in [our report](XXX)
+Our pipeline is described in [our report](https://github.com/bdvllrs/misinformation-detection-tensor-embeddings/blob/Asonam/fig_and_report/ASONAM_2019_paper_285(2).pdf)
 
 Here is our result on the dataset
 
