@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 class LDADecomposition(Decomposition):
     def __init__(self, config: Config, articles: ArticlesProvider):
         super().__init__(config, articles)
-        self.lda = LatentDirichletAllocation(n_components=config["rank_parafac_decomposition"], max_iter=5,
+        self.lda = LatentDirichletAllocation(n_components=config.embedding.rank_parafac_decomposition, max_iter=5,
                                 learning_method='online',
                                 learning_offset=50.,
                                 random_state=0)
