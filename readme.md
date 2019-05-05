@@ -56,28 +56,34 @@ LDA-idf.
 
 ### Co-occurence matrix
 
-`method_decomposition_embedding` can be `parafac` or `GloVe`.
-```json
-{
-    "method_decomposition_embedding": "parafac",
-    "rank_parafac_decomposition": 10,
-    "size_word_co_occurrence_window": 5,
-    "use_frequency": false
-}
+`method_decomposition_embedding` can be `parafac`, `GloVe`, `LDA` or `Transformer`.
+```yaml
+embedding:
+  # Parafac - LDA - GloVe - Transformer -
+  method_decomposition_embedding: parafac
+  method_embedding_glove: mean 
+  rank_parafac_decomposition: 10
+  size_word_co_occurrence_window: 5
+  use_frequency: No  # If No, only a binary co-occurence matrix.
+  vocab_size: -1
 ```
 
 ### GloVe
 
 The embedding with glove : download GloVe nlp.stanford.edu/data/glove.6B.zip
 
-There is 2 method of embedding : mean or RNN
+There is 2 method of embedding: mean or RNN
 
-```json
-{
-    "method_decomposition_embedding": "GloVe",
-    "method_embedding_glove": "mean",
-    "GloVe_adress": "../glove6B/glove.6B.100d.txt"
-}
+```yaml
+paths:
+  GloVe_adress: ../glove6B/glove.6B.100d.txt
+
+embedding:
+  # Parafac - LDA - GloVe - Transformer -
+  method_decomposition_embedding: GloVe
+  method_embedding_glove: mean  # mean or RNN
+  use_frequency: No
+  vocab_size: -1
 ```
 
 ### Transformer
@@ -85,20 +91,26 @@ There is 2 method of embedding : mean or RNN
 Git clone the project transformer-pytorch-hugging face, rename the file transformer and download the pre-trained model
 of OpenAI. Set the config path :
 
-```json
-{
-  "encoder_path":"transformer/model/encoder_bpe_40000.json",
-  "bpe_path":"transformer/model/vocab_40000.bpe",
-  "method_decomposition_embedding":"Transformer"
-  }
+```yaml
+paths:
+  encoder_path: transformer/model/encoder_bpe_40000.json
+  bpe_path: transformer/model/vocab_40000.bpe
+
+embedding:
+  # Parafac - LDA - GloVe - Transformer -
+  method_decomposition_embedding: Transformer
+  use_frequency: No
+  vocab_size: -1
 ```
 
 ### LDA-idf
 
-```json
-{
-  "method_decomposition_embedding":"LDA"
-  }
+```yaml
+embedding:
+  # Parafac - LDA - GloVe - Transformer -
+  method_decomposition_embedding: LDA
+  use_frequency: No
+  vocab_size: -1
 ```
 
 ## Word Mover Distance
@@ -106,7 +118,7 @@ of OpenAI. Set the config path :
 The idea is instead of using the euclidean distance, we can use the [WMD](http://proceedings.mlr.press/v37/kusnerb15.pdf)
 
 
-Install packages:
+Install Python packages:
 
 - spacy
 - wmd
