@@ -14,9 +14,6 @@ ACM ISBN 978-1-4503-6868-1/19/08
 http://dx.doi.org/10.1145/3341161.3342958}
 
 
-Then we proposed to compare the leanring method based on FaBP to a graph neural method one.
-
-
 
 # Install guide
 
