@@ -5,13 +5,13 @@ Our work proposes a graph-based semi-supervised fake news detection method.
 
 First, this repo is a python implementation of the paper
 
-Semi-Supervised Learning and Graph Neural Networks for Fake News Detection by Adrien Benamira, Benjamin Devillers,Etienne Lesot,
+*Semi-Supervised Learning and Graph Neural Networks for Fake News Detection* by Adrien Benamira, Benjamin Devillers,Etienne Lesot,
 Ayush K., Manal Saadi and Fragkiskos D. Malliaros
 
 published at ASONAM '19, August 27-30, 2019, Vancouver, Canada
-\\\copyright\space2019Association for Computing Machinery. 
-\\ACM ISBN 978-1-4503-6868-1/19/08
-\\\url{http://dx.doi.org/10.1145/3341161.3342958}
+copyright space2019Association for Computing Machinery. 
+ACM ISBN 978-1-4503-6868-1/19/08
+http://dx.doi.org/10.1145/3341161.3342958}
 
 
 Then we proposed to compare the leanring method based on FaBP to a graph neural method one.
